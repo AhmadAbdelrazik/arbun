@@ -16,14 +16,13 @@ import (
 type Application struct {
 	services *services.Services
 	logger   *jsonlog.Log
-
-	wg sync.WaitGroup
+	wg       sync.WaitGroup
 }
 
 func New() *Application {
 	return &Application{
 		services: services.New(),
-		logger:   New().logger,
+		logger:   jsonlog.New(os.Stdout, jsonlog.LevelInfo),
 	}
 }
 
