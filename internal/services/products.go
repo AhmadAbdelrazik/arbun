@@ -41,13 +41,32 @@ func (p ProductService) GetAllProducts() ([]repository.Product, error) {
 }
 
 func (p ProductService) UpdateProduct(id int64, name string, description string, properties map[string]string) error {
-	product := repository.Product{
-		Name:        name,
-		Description: description,
-		Properties:  properties,
+	product, err := p.GetProductByID(id)
+	if err != nil {
+		return fmt.Errorf("repository layer error: %w", err)
 	}
 
-	err := p.model.UpdateProduct(product)
+	product.Name = name
+	product.Description = description
+	product.Properties = properties
+
+	err = p.model.UpdateProduct(product)
+	if err != nil {
+		return fmt.Errorf("repository layer error: %w", err)
+	}
+
+	return nil
+}
+
+func (p ProductService) UpdateProductAmount(id int64, newAmount int) error {
+	product, err := p.GetProductByID(id)
+	if err != nil {
+		return fmt.Errorf("repository layer error: %w", err)
+	}
+
+	product.AvailableAmount = newAmount
+
+	err = p.model.UpdateProduct(product)
 	if err != nil {
 		return fmt.Errorf("repository layer error: %w", err)
 	}

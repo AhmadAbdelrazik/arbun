@@ -9,11 +9,12 @@ var (
 )
 
 type Product struct {
-	ID          int64
-	Name        string
-	Description string
-	Properties  map[string]string
-	Version     int64
+	ID              int64
+	Name            string
+	Description     string
+	Properties      map[string]string
+	AvailableAmount int
+	Version         int64
 }
 
 type ProductModel struct {
