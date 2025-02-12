@@ -17,28 +17,28 @@ type Product struct {
 }
 
 type ProductModel struct {
-	Products  []Product
-	IDCounter int64
+	products  []Product
+	idCounter int64
 }
 
 func (m *ProductModel) InsertProduct(product Product) (int64, error) {
-	for _, p := range m.Products {
+	for _, p := range m.products {
 		if p.Name == product.Name {
 			return 0, ErrDuplicateProduct
 		}
 	}
 
-	product.ID = m.IDCounter
+	product.ID = m.idCounter
 	product.Version = 1
-	m.Products = append(m.Products, product)
+	m.products = append(m.products, product)
 
-	m.IDCounter++
+	m.idCounter++
 
 	return product.ID, nil
 }
 
 func (m *ProductModel) GetProductByID(id int64) (Product, error) {
-	for _, p := range m.Products {
+	for _, p := range m.products {
 		if p.ID == id {
 			return p, nil
 		}
@@ -48,17 +48,17 @@ func (m *ProductModel) GetProductByID(id int64) (Product, error) {
 }
 
 func (m *ProductModel) GetAllProducts() ([]Product, error) {
-	return m.Products, nil
+	return m.products, nil
 }
 
 func (m *ProductModel) UpdateProduct(product Product) error {
-	for i, p := range m.Products {
+	for i, p := range m.products {
 		if p.ID == product.ID {
 			if p.Version != product.Version {
 				return ErrEditConflict
 			}
-			m.Products[i] = product
-			m.Products[i].Version++
+			m.products[i] = product
+			m.products[i].Version++
 			break
 		}
 	}
@@ -68,11 +68,11 @@ func (m *ProductModel) UpdateProduct(product Product) error {
 }
 
 func (m *ProductModel) DeleteProduct(id int64) error {
-	for i, p := range m.Products {
+	for i, p := range m.products {
 		if p.ID == id {
-			products := m.Products[:i]
-			products = append(products, m.Products[i+1:]...)
-			m.Products = products
+			products := m.products[:i]
+			products = append(products, m.products[i+1:]...)
+			m.products = products
 			return nil
 		}
 	}
