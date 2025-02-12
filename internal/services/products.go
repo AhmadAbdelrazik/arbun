@@ -9,6 +9,12 @@ type ProductService struct {
 	model repository.ProductModel
 }
 
+func newProductService() *ProductService {
+	return &ProductService{
+		model: *repository.NewProductModel(),
+	}
+}
+
 func (p ProductService) InsertProduct(name string, description string, properties map[string]string) (int64, error) {
 	product := repository.Product{
 		Name:        name,

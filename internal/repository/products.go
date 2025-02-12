@@ -22,6 +22,13 @@ type ProductModel struct {
 	idCounter int64
 }
 
+func NewProductModel() *ProductModel {
+	return &ProductModel{
+		products:  make([]Product, 0),
+		idCounter: 1,
+	}
+}
+
 func (m *ProductModel) InsertProduct(product Product) (int64, error) {
 	for _, p := range m.products {
 		if p.Name == product.Name {
