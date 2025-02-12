@@ -1,15 +1,28 @@
 package handlers
 
-import "net/http"
+import (
+	"AhmadAbdelrazik/arbun/internal/services"
+	"net/http"
+)
 
 func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string            `json:"name"`
 		Description string            `json:"description"`
 		Properties  map[string]string `json:"properties"`
+		Vendor      string            `json:"vendor"`
+		Amount      int               `json:"amount"`
 	}
+	// TODO: Handle input validation
 
-	id, err := app.services.Products.InsertProduct(input.Name, input.Description, input.Properties)
+	params := services.InsertProductParam{
+		Name:            input.Name,
+		Description:     input.Description,
+		Properties:      input.Properties,
+		Vendor:          input.Vendor,
+		AvailableAmount: input.Amount,
+	}
+	id, err := app.services.Products.InsertProduct(params)
 	if err != nil {
 		// TODO: Handle different errors
 		app.badRequestResponse(w, r, err)

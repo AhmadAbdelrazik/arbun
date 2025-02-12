@@ -1,6 +1,9 @@
 package repository
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 var (
 	ErrDuplicateProduct = errors.New("duplicate product")
@@ -12,9 +15,15 @@ type Product struct {
 	ID              int64
 	Name            string
 	Description     string
+	Vendor          string
 	Properties      map[string]string
 	AvailableAmount int
 	Version         int64
+}
+
+func (p Product) String() string {
+	js, _ := json.MarshalIndent(p, "", "\t")
+	return string(js)
 }
 
 type ProductModel struct {
@@ -29,10 +38,10 @@ func NewProductModel() *ProductModel {
 	}
 }
 
-func (m *ProductModel) InsertProduct(product Product) (int64, error) {
+func (m *ProductModel) InsertProduct(product Product) (Product, error) {
 	for _, p := range m.products {
-		if p.Name == product.Name {
-			return 0, ErrDuplicateProduct
+		if p.Name == product.Name && p.Vendor == product.Vendor {
+			return Product{}, ErrDuplicateProduct
 		}
 	}
 
@@ -42,7 +51,7 @@ func (m *ProductModel) InsertProduct(product Product) (int64, error) {
 
 	m.idCounter++
 
-	return product.ID, nil
+	return product, nil
 }
 
 func (m *ProductModel) GetProductByID(id int64) (Product, error) {
@@ -59,19 +68,23 @@ func (m *ProductModel) GetAllProducts() ([]Product, error) {
 	return m.products, nil
 }
 
-func (m *ProductModel) UpdateProduct(product Product) error {
+func (m *ProductModel) UpdateProduct(product Product) (Product, error) {
+	var result Product
+
 	for i, p := range m.products {
 		if p.ID == product.ID {
 			if p.Version != product.Version {
-				return ErrEditConflict
+				return Product{}, ErrEditConflict
 			}
 			m.products[i] = product
 			m.products[i].Version++
+
+			result = m.products[i]
 			break
 		}
 	}
 
-	return nil
+	return result, nil
 
 }
 
