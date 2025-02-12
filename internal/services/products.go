@@ -1,6 +1,9 @@
 package services
 
-import "AhmadAbdelrazik/arbun/internal/repository"
+import (
+	"AhmadAbdelrazik/arbun/internal/repository"
+	"fmt"
+)
 
 type ProductService struct {
 	model repository.ProductModel
@@ -13,16 +16,28 @@ func (p ProductService) InsertProduct(name string, description string, propertie
 		Properties:  properties,
 	}
 
-	return p.model.InsertProduct(product)
+	id, err := p.model.InsertProduct(product)
+	if err != nil {
+		return 0, fmt.Errorf("repository layer error: %w", err)
+	}
 
+	return id, nil
 }
 
 func (p ProductService) GetProductByID(id int64) (repository.Product, error) {
-	return p.model.GetProductByID(id)
+	product, err := p.model.GetProductByID(id)
+	if err != nil {
+		return repository.Product{}, fmt.Errorf("repository layer error: %w", err)
+	}
+	return product, nil
 }
 
 func (p ProductService) GetAllProducts() ([]repository.Product, error) {
-	return p.model.GetAllProducts()
+	products, err := p.model.GetAllProducts()
+	if err != nil {
+		return []repository.Product{}, fmt.Errorf("repository layer error: %w", err)
+	}
+	return products, nil
 }
 
 func (p ProductService) UpdateProduct(id int64, name string, description string, properties map[string]string) error {
@@ -32,9 +47,19 @@ func (p ProductService) UpdateProduct(id int64, name string, description string,
 		Properties:  properties,
 	}
 
-	return p.model.UpdateProduct(product)
+	err := p.model.UpdateProduct(product)
+	if err != nil {
+		return fmt.Errorf("repository layer error: %w", err)
+	}
+
+	return nil
 }
 
 func (p ProductService) DeleteProduct(id int64) error {
-	return p.DeleteProduct(id)
+	err := p.DeleteProduct(id)
+	if err != nil {
+		return fmt.Errorf("repository layer error: %w", err)
+	}
+
+	return nil
 }
