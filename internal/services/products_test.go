@@ -141,7 +141,7 @@ func TestProductFetching(t *testing.T) {
 }
 
 func TestProductUpdate(t *testing.T) {
-	productService := newProductService()
+	service := newProductService()
 
 	product1 := repository.Product{
 		Name:        "product 1",
@@ -155,7 +155,61 @@ func TestProductUpdate(t *testing.T) {
 		ID:              1,
 	}
 
-	productService.InsertProduct(productToInsertParam(product1))
+	service.InsertProduct(productToInsertParam(product1))
+	newName := "product 1 new name"
+
+	t.Run("valid update", func(t *testing.T) {
+		product, err := service.UpdateProduct(UpdateProductParam{ID: 1, Name: &newName})
+
+		assert.Nil(t, err)
+		assert.Equal(t, product.Name, newName)
+	})
+
+	t.Run("invalid update", func(t *testing.T) {
+		t.Run("not providing id", func(t *testing.T) {
+			product, err := service.UpdateProduct(UpdateProductParam{Name: &newName})
+
+			assert.Err(t, err, repository.ErrProductNotFound)
+			assert.Equal(t, product.String(), repository.Product{}.String())
+		})
+		t.Run("non existent product update", func(t *testing.T) {
+			product, err := service.UpdateProduct(UpdateProductParam{ID: 4, Name: &newName})
+
+			assert.Err(t, err, repository.ErrProductNotFound)
+			assert.Equal(t, product.String(), repository.Product{}.String())
+		})
+	})
+}
+
+func TestProductDeletion(t *testing.T) {
+	service := newProductService()
+	product1 := repository.Product{
+		Name:        "product 1",
+		Description: "product 1 description",
+		Vendor:      "vendor 1",
+		Properties: map[string]string{
+			"size": "12",
+		},
+		AvailableAmount: 4,
+		Version:         1,
+		ID:              1,
+	}
+
+	service.InsertProduct(productToInsertParam(product1))
+
+	t.Run("invalid deletion", func(t *testing.T) {
+		err := service.DeleteProduct(4)
+		assert.Err(t, err, repository.ErrProductNotFound)
+	})
+
+	t.Run("valid deletion", func(t *testing.T) {
+		err := service.DeleteProduct(1)
+		assert.Nil(t, err)
+
+		products, err := service.GetAllProducts()
+		assert.Nil(t, err)
+		assert.Equal(t, len(products), 0)
+	})
 }
 
 func productToInsertParam(p repository.Product) InsertProductParam {

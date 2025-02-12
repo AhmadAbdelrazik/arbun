@@ -28,3 +28,19 @@ func Equal[T comparable](t *testing.T, got T, want T) {
 		t.Fatalf("got:  %v\nwant: %v", got, want)
 	}
 }
+
+func True(t *testing.T, condition bool) {
+	t.Helper()
+
+	if condition != true {
+		t.Fatal("got:  false\nwant: true")
+	}
+}
+
+func False(t *testing.T, condition bool) {
+	t.Helper()
+
+	if condition != false {
+		t.Fatal("got:  true\nwant: false")
+	}
+}
