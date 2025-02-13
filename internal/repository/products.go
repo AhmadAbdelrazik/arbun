@@ -18,7 +18,7 @@ type Product struct {
 	Vendor          string
 	Properties      map[string]string
 	AvailableAmount int
-	Version         int64
+	Version         int
 }
 
 func (p Product) String() string {

@@ -23,7 +23,7 @@ type InsertProductParam struct {
 	AvailableAmount int
 }
 
-func (p ProductService) InsertProduct(param InsertProductParam) (repository.Product, error) {
+func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Product, error) {
 	product := repository.Product{
 		Name:            param.Name,
 		Description:     param.Description,
@@ -40,7 +40,7 @@ func (p ProductService) InsertProduct(param InsertProductParam) (repository.Prod
 	return newProduct, nil
 }
 
-func (p ProductService) GetProductByID(id int64) (repository.Product, error) {
+func (p *ProductService) GetProductByID(id int64) (repository.Product, error) {
 	product, err := p.model.GetProductByID(id)
 	if err != nil {
 		return repository.Product{}, fmt.Errorf("get product by id: %w", err)
@@ -48,7 +48,7 @@ func (p ProductService) GetProductByID(id int64) (repository.Product, error) {
 	return product, nil
 }
 
-func (p ProductService) GetAllProducts() ([]repository.Product, error) {
+func (p *ProductService) GetAllProducts() ([]repository.Product, error) {
 	products, err := p.model.GetAllProducts()
 	if err != nil {
 		return []repository.Product{}, fmt.Errorf("get all products: %w", err)
@@ -86,7 +86,7 @@ func (u *UpdateProductParam) UpdateProduct(product repository.Product) repositor
 	return result
 }
 
-func (p ProductService) UpdateProduct(param UpdateProductParam) (repository.Product, error) {
+func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Product, error) {
 	fetchedProduct, err := p.GetProductByID(param.ID)
 	if err != nil {
 		return repository.Product{}, fmt.Errorf("update product: %w", err)
@@ -102,7 +102,7 @@ func (p ProductService) UpdateProduct(param UpdateProductParam) (repository.Prod
 	return updatedProduct, nil
 }
 
-func (p ProductService) DeleteProduct(id int64) error {
+func (p *ProductService) DeleteProduct(id int64) error {
 	err := p.model.DeleteProduct(id)
 	if err != nil {
 		return fmt.Errorf("delete product: %w", err)
