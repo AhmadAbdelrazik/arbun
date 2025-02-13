@@ -2,7 +2,14 @@ package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/repository"
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrDuplicateProduct = errors.New("product already exists")
+	ErrProductNotFound  = errors.New("product not found")
+	ErrEditConflict     = errors.New("edit conflict")
 )
 
 type ProductService struct {
@@ -34,7 +41,12 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 
 	newProduct, err := p.model.InsertProduct(product)
 	if err != nil {
-		return repository.Product{}, fmt.Errorf("insert product: %w", err)
+		switch {
+		case errors.Is(err, repository.ErrDuplicateProduct):
+			return repository.Product{}, ErrDuplicateProduct
+		default:
+			return repository.Product{}, fmt.Errorf("insert product: %w", err)
+		}
 	}
 
 	return newProduct, nil
@@ -43,7 +55,12 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 func (p *ProductService) GetProductByID(id int64) (repository.Product, error) {
 	product, err := p.model.GetProductByID(id)
 	if err != nil {
-		return repository.Product{}, fmt.Errorf("get product by id: %w", err)
+		switch {
+		case errors.Is(err, repository.ErrProductNotFound):
+			return repository.Product{}, ErrProductNotFound
+		default:
+			return repository.Product{}, fmt.Errorf("get product by id: %w", err)
+		}
 	}
 	return product, nil
 }
@@ -65,7 +82,7 @@ type UpdateProductParam struct {
 	AvailableAmount *int
 }
 
-func (u *UpdateProductParam) UpdateProduct(product repository.Product) repository.Product {
+func (u *UpdateProductParam) updateProduct(product repository.Product) repository.Product {
 	result := product
 	if u.Name != nil {
 		result.Name = *u.Name
@@ -92,11 +109,16 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Pro
 		return repository.Product{}, fmt.Errorf("update product: %w", err)
 	}
 
-	product := param.UpdateProduct(fetchedProduct)
+	product := param.updateProduct(fetchedProduct)
 
 	updatedProduct, err := p.model.UpdateProduct(product)
 	if err != nil {
-		return repository.Product{}, fmt.Errorf("update product: %w", err)
+		switch {
+		case errors.Is(err, repository.ErrEditConflict):
+			return repository.Product{}, ErrEditConflict
+		default:
+			return repository.Product{}, fmt.Errorf("update product: %w", err)
+		}
 	}
 
 	return updatedProduct, nil
@@ -105,7 +127,12 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Pro
 func (p *ProductService) DeleteProduct(id int64) error {
 	err := p.model.DeleteProduct(id)
 	if err != nil {
-		return fmt.Errorf("delete product: %w", err)
+		switch {
+		case errors.Is(err, repository.ErrProductNotFound):
+			return ErrProductNotFound
+		default:
+			return fmt.Errorf("get product by id: %w", err)
+		}
 	}
 
 	return nil
