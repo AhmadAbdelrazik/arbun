@@ -33,7 +33,7 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	app.errorResponse(w, r, http.StatusNotFound, err.Error())
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
 func (app *Application) editConflictResponse(w http.ResponseWriter, r *http.Request) {

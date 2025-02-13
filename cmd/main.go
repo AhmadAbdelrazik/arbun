@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	app := handlers.New()
+	app := handlers.NewApplication()
 
 	err := app.Serve()
 	if err != nil {

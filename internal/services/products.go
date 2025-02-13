@@ -102,22 +102,6 @@ func (p ProductService) UpdateProduct(param UpdateProductParam) (repository.Prod
 	return updatedProduct, nil
 }
 
-func (p ProductService) UpdateProductAmount(id int64, newAmount int) (repository.Product, error) {
-	product, err := p.GetProductByID(id)
-	if err != nil {
-		return repository.Product{}, fmt.Errorf("update product amount: %w", err)
-	}
-
-	product.AvailableAmount = newAmount
-
-	updatedProduct, err := p.model.UpdateProduct(product)
-	if err != nil {
-		return repository.Product{}, fmt.Errorf("update product amount: %w", err)
-	}
-
-	return updatedProduct, nil
-}
-
 func (p ProductService) DeleteProduct(id int64) error {
 	err := p.model.DeleteProduct(id)
 	if err != nil {

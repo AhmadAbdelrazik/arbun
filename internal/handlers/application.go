@@ -19,7 +19,7 @@ type Application struct {
 	wg       sync.WaitGroup
 }
 
-func New() *Application {
+func NewApplication() *Application {
 	return &Application{
 		services: services.New(),
 		logger:   jsonlog.New(os.Stdout, jsonlog.LevelInfo),

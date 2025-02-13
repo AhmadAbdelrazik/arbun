@@ -8,6 +8,8 @@ func (app *Application) routes() http.Handler {
 	mux.HandleFunc("POST /products", app.PostProduct)
 	mux.HandleFunc("GET /products/{id}", app.GetProduct)
 	mux.HandleFunc("GET /products", app.GetAllProducts)
+	mux.HandleFunc("PATCH /products/{id}", app.PatchProduct)
+	mux.HandleFunc("DELETE /products/{id}", app.DeleteProduct)
 
 	return mux
 }
