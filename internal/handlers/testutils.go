@@ -84,3 +84,13 @@ func (c *TestClient) ReadResponseBody(resp *http.Response, v interface{}) error 
 
 	return json.Unmarshal(body, v)
 }
+
+func (c *TestClient) GetCookie(res *http.Response, cookieName string) *http.Cookie {
+	for _, c := range res.Cookies() {
+		if c.Name == cookieName {
+			return c
+		}
+	}
+
+	return nil
+}
