@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
@@ -37,7 +36,7 @@ func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 	product, err := app.services.Products.InsertProduct(params)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrDuplicateProduct):
+		case errors.Is(err, services.ErrDuplicateProduct):
 			app.badRequestResponse(w, r, err)
 		default:
 			app.serverErrorResponse(w, r, err)
@@ -61,7 +60,7 @@ func (app *Application) GetProduct(w http.ResponseWriter, r *http.Request) {
 	product, err := app.services.Products.GetProductByID(id)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrProductNotFound):
+		case errors.Is(err, services.ErrProductNotFound):
 			app.notFoundResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
@@ -126,9 +125,9 @@ func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
 	product, err := app.services.Products.UpdateProduct(params)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrProductNotFound):
+		case errors.Is(err, services.ErrProductNotFound):
 			app.notFoundResponse(w, r)
-		case errors.Is(err, repository.ErrEditConflict):
+		case errors.Is(err, services.ErrEditConflict):
 			app.editConflictResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
@@ -152,7 +151,7 @@ func (app *Application) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	err = app.services.Products.DeleteProduct(id)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrProductNotFound):
+		case errors.Is(err, services.ErrProductNotFound):
 			app.notFoundResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)

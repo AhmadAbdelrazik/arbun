@@ -98,7 +98,7 @@ func TestPostProduct(t *testing.T) {
 			assert.Nil(t, err)
 
 			assert.Equal(t, res.StatusCode, http.StatusBadRequest)
-			assert.Equal(t, responseBody.Error, "insert product: duplicate product")
+			assert.Equal(t, responseBody.Error, "product already exists")
 		})
 		t.Run("invalid product", func(t *testing.T) {
 			product := repository.Product{
