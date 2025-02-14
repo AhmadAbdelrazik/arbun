@@ -78,7 +78,7 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 }
 
 func (a *AdminService) Logout(token Token) error {
-	admin, err := a.getAdminByToken(token.Plaintext, repository.ScopeAuth)
+	admin, err := a.GetAdminByToken(token.Plaintext, repository.ScopeAuth)
 	if err != nil {
 		return fmt.Errorf("admin logout: %w", err)
 	}
@@ -106,7 +106,7 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (a *AdminService) getAdminByToken(tokenText, scope string) (repository.Admin, error) {
+func (a *AdminService) GetAdminByToken(tokenText, scope string) (repository.Admin, error) {
 	token, err := a.tokens.GetToken(tokenText, scope)
 	if err != nil {
 		switch {

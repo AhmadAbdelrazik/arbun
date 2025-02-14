@@ -25,7 +25,10 @@ func GetAuthToken(r *http.Request) (services.Token, error) {
 		return services.Token{}, err
 	}
 
-	// TODO: validate token
+	err = cookie.Valid()
+	if err != nil {
+		return services.Token{}, err
+	}
 
 	token := services.Token{
 		Plaintext: cookie.Value,
