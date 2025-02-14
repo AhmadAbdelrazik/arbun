@@ -30,21 +30,6 @@ type Token struct {
 	ExpiryTime time.Time
 }
 
-func (a *AdminService) GenerateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := repository.GenerateToken(adminId, scope, ttl)
-
-	err = a.tokens.InsertToken(token)
-	if err != nil {
-		return Token{}, fmt.Errorf("admin generate token: %w", err)
-	}
-
-	result := Token{
-		Plaintext:  token.Plaintext,
-		ExpiryTime: token.ExpiryTime,
-	}
-	return result, nil
-}
-
 func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
 	// TODO: Implement Regex Validation
@@ -65,7 +50,7 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 		}
 	}
 
-	return a.GenerateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
 }
 func (a *AdminService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
@@ -89,7 +74,7 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 	}
 
 	// 3. Return an Auth token
-	return a.GenerateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
 }
 
 func (a *AdminService) Logout(token Token) error {
@@ -106,6 +91,21 @@ func (a *AdminService) Logout(token Token) error {
 	return nil
 }
 
+func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
+	token, err := repository.GenerateToken(adminId, scope, ttl)
+
+	err = a.tokens.InsertToken(token)
+	if err != nil {
+		return Token{}, fmt.Errorf("admin generate token: %w", err)
+	}
+
+	result := Token{
+		Plaintext:  token.Plaintext,
+		ExpiryTime: token.ExpiryTime,
+	}
+	return result, nil
+}
+
 func (a *AdminService) getAdminByToken(tokenText, scope string) (repository.Admin, error) {
 	token, err := a.tokens.GetToken(tokenText, scope)
 	if err != nil {
@@ -119,7 +119,12 @@ func (a *AdminService) getAdminByToken(tokenText, scope string) (repository.Admi
 
 	admin, err := a.model.GetAdminByID(token.AdminID)
 	if err != nil {
-		return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+		switch {
+		case errors.Is(err, repository.ErrAdminNotFound):
+			return repository.Admin{}, ErrInvalidAuthToken
+		default:
+			return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+		}
 	}
 
 	return admin, nil

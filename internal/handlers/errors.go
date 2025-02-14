@@ -41,6 +41,11 @@ func (app *Application) editConflictResponse(w http.ResponseWriter, r *http.Requ
 	app.errorResponse(w, r, http.StatusConflict, message)
 }
 
+func (app *Application) authenticationErrorResponse(w http.ResponseWriter, r *http.Request) {
+	message := "Authentication credentials were not provided or are invalid."
+	app.errorResponse(w, r, http.StatusForbidden, message)
+}
+
 func (app *Application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
 	message := "rate limit exceeded"
 

@@ -11,5 +11,9 @@ func (app *Application) routes() http.Handler {
 	mux.HandleFunc("PATCH /products/{id}", app.PatchProduct)
 	mux.HandleFunc("DELETE /products/{id}", app.DeleteProduct)
 
+	mux.HandleFunc("POST /signup", app.PostAdminSignup)
+	mux.HandleFunc("POST /login", app.PostAdminLogin)
+	mux.HandleFunc("POST /logout", app.PostAdminLogout)
+
 	return mux
 }
