@@ -10,6 +10,7 @@ var (
 	ErrEmailAlreadyTaken  = errors.New("email already taken")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrInvalidAuthToken   = errors.New("invalid auth token")
+	ErrInvalidUserType    = errors.New("invalid user type")
 )
 
 type UserService struct {
@@ -21,9 +22,9 @@ const (
 	TypeCustomer = "customer"
 )
 
-func newUserService() *UserService {
+func newUserService(admin *AdminService) *UserService {
 	return &UserService{
-		admins: newAdminService(),
+		admins: admin,
 	}
 }
 
@@ -32,7 +33,7 @@ func (a *UserService) Signup(fullName, email, password, userType string) (Token,
 	case TypeAdmin:
 		return a.admins.Signup(fullName, email, password)
 	default:
-		return Token{}, fmt.Errorf("invalid type")
+		return Token{}, fmt.Errorf("signup: %w", ErrInvalidUserType)
 	}
 }
 
@@ -41,7 +42,7 @@ func (a *UserService) Login(email, password, userType string) (Token, error) {
 	case TypeAdmin:
 		return a.admins.Login(email, password)
 	default:
-		return Token{}, fmt.Errorf("invalid type")
+		return Token{}, fmt.Errorf("login: %w", ErrInvalidUserType)
 	}
 }
 
@@ -50,7 +51,7 @@ func (a *UserService) Logout(token Token, userType string) error {
 	case TypeAdmin:
 		return a.admins.Logout(token)
 	default:
-		return fmt.Errorf("invalid type")
+		return fmt.Errorf("logout: %w", ErrInvalidUserType)
 	}
 }
 
@@ -59,6 +60,6 @@ func (a *UserService) GetByToken(tokenText, scope, userType string) (repository.
 	case TypeAdmin:
 		return a.admins.GetAdminByToken(tokenText, scope)
 	default:
-		return nil, fmt.Errorf("invalid type")
+		return nil, fmt.Errorf("getByToken: %w", ErrInvalidUserType)
 	}
 }

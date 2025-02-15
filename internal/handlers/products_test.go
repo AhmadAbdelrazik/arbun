@@ -3,6 +3,7 @@ package handlers
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
 	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/services"
 	"fmt"
 	"net/http"
 	"testing"
@@ -355,10 +356,12 @@ func InitializeWithAdmin(ts *TestClient) *http.Cookie {
 		FullName string `json:"full_name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		UserType string `json:"type"`
 	}{
 		FullName: "admin1",
 		Email:    "admin1@example.com",
 		Password: "password1",
+		UserType: services.TypeAdmin,
 	}
 
 	res, _ := ts.Post("/signup", body)

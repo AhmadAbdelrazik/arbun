@@ -11,9 +11,9 @@ func (app *Application) routes() http.Handler {
 	mux.HandleFunc("PATCH /products/{id}", app.IsAdmin(app.PatchProduct))
 	mux.HandleFunc("DELETE /products/{id}", app.IsAdmin(app.DeleteProduct))
 
-	mux.HandleFunc("POST /signup", app.PostAdminSignup)
-	mux.HandleFunc("POST /login", app.PostAdminLogin)
-	mux.HandleFunc("POST /logout", app.PostAdminLogout)
+	mux.HandleFunc("POST /signup", app.PostSignup)
+	mux.HandleFunc("POST /login", app.PostLogin)
+	mux.HandleFunc("POST /logout", app.PostLogout)
 
 	return app.recoverPanic(securityHeaders(mux))
 }

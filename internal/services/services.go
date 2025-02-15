@@ -7,9 +7,10 @@ type Services struct {
 }
 
 func New() *Services {
+	adminService := newAdminService()
 	return &Services{
 		Products: newProductService(),
-		Admins:   newAdminService(),
-		Users:    newUserService(),
+		Admins:   adminService,
+		Users:    newUserService(adminService),
 	}
 }

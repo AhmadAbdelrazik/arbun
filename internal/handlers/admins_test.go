@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
+	"AhmadAbdelrazik/arbun/internal/services"
 	"fmt"
 	"net/http"
 	"testing"
 )
 
-func TestSignup(t *testing.T) {
+func TestAdminSignup(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
@@ -16,16 +17,19 @@ func TestSignup(t *testing.T) {
 			FullName string `json:"full_name"`
 			Email    string `json:"email"`
 			Password string `json:"password"`
+			UserType string `json:"type"`
 		}{
 			{
 				FullName: "admin1",
 				Email:    "admin1@example.com",
 				Password: "password1",
+				UserType: services.TypeAdmin,
 			},
 			{
 				FullName: "admin2",
 				Email:    "admin2@example.com",
 				Password: "password2",
+				UserType: services.TypeAdmin,
 			},
 		}
 
@@ -49,10 +53,12 @@ func TestSignup(t *testing.T) {
 				FullName string `json:"full_name"`
 				Email    string `json:"email"`
 				Password string `json:"password"`
+				UserType string `json:"type"`
 			}{
 				FullName: "admin1",
 				Email:    "admin1@example.com",
 				Password: "password1",
+				UserType: services.TypeAdmin,
 			}
 
 			res, err := ts.Post("/signup", responseBody)
@@ -65,7 +71,7 @@ func TestSignup(t *testing.T) {
 	})
 }
 
-func TestLogin(t *testing.T) {
+func TestAdminLogin(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
@@ -75,14 +81,17 @@ func TestLogin(t *testing.T) {
 		tests := []struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
+			UserType string `json:"type"`
 		}{
 			{
 				Email:    "admin1@example.com",
 				Password: "password1",
+				UserType: services.TypeAdmin,
 			},
 			{
 				Email:    "admin2@example.com",
 				Password: "password2",
+				UserType: services.TypeAdmin,
 			},
 		}
 
@@ -105,9 +114,11 @@ func TestLogin(t *testing.T) {
 			responseBody := struct {
 				Email    string `json:"email"`
 				Password string `json:"password"`
+				UserType string `json:"type"`
 			}{
 				Email:    "admin3@example.com",
 				Password: "password1",
+				UserType: services.TypeAdmin,
 			}
 
 			res, err := ts.Post("/login", responseBody)
@@ -121,9 +132,11 @@ func TestLogin(t *testing.T) {
 			responseBody := struct {
 				Email    string `json:"email"`
 				Password string `json:"password"`
+				UserType string `json:"type"`
 			}{
 				Email:    "admin1@example.com",
 				Password: "password2",
+				UserType: services.TypeAdmin,
 			}
 
 			res, err := ts.Post("/login", responseBody)
@@ -142,16 +155,19 @@ func loginTestSetup(ts *TestClient) {
 		FullName string `json:"full_name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		UserType string `json:"type"`
 	}{
 		{
 			FullName: "admin1",
 			Email:    "admin1@example.com",
 			Password: "password1",
+			UserType: services.TypeAdmin,
 		},
 		{
 			FullName: "admin2",
 			Email:    "admin2@example.com",
 			Password: "password2",
+			UserType: services.TypeAdmin,
 		},
 	}
 
