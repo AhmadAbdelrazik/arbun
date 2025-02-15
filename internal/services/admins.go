@@ -12,12 +12,6 @@ type AdminService struct {
 	tokens *repository.TokenModel
 }
 
-var (
-	ErrEmailAlreadyTaken  = errors.New("email already taken")
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidAuthToken   = errors.New("invalid auth token")
-)
-
 func newAdminService() *AdminService {
 	return &AdminService{
 		model:  repository.NewAdminModel(),
