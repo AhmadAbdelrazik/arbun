@@ -1,4 +1,3 @@
 package repository
 
-type User struct {
-}
+type User interface{}
