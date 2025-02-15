@@ -94,3 +94,34 @@ func (c *TestClient) GetCookie(res *http.Response, cookieName string) *http.Cook
 
 	return nil
 }
+
+func (c *TestClient) Do(method, endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(method, c.server.URL+endpoint, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	for _, c := range cookies {
+		req.AddCookie(c)
+	}
+
+	return http.DefaultClient.Do(req)
+}
+
+func (c *TestClient) PostWithCookies(endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
+	return c.Do(http.MethodPost, endpoint, body, cookies...)
+}
+
+func (c *TestClient) PatchWithCookies(endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
+	return c.Do(http.MethodPatch, endpoint, body, cookies...)
+}
+
+func (c *TestClient) DeleteWithCookies(endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
+	return c.Do(http.MethodDelete, endpoint, body, cookies...)
+}

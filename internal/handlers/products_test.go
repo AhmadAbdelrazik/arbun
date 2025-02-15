@@ -22,6 +22,8 @@ func TestPostProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
+	authCookie := InitializeWithAdmin(ts)
+
 	t.Run("valid insertion", func(t *testing.T) {
 		tests := []struct {
 			testName string
@@ -59,7 +61,7 @@ func TestPostProduct(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.testName, func(t *testing.T) {
-				res, err := ts.Post("/products", productToPostProductInput(tt.Product))
+				res, err := ts.PostWithCookies("/products", productToPostProductInput(tt.Product), authCookie)
 				assert.Nil(t, err)
 
 				var responseBody struct {
@@ -69,6 +71,7 @@ func TestPostProduct(t *testing.T) {
 				err = ts.ReadResponseBody(res, &responseBody)
 				assert.Nil(t, err)
 				assert.Equal(t, responseBody.Product.String(), tt.Product.String())
+				assert.Equal(t, res.StatusCode, http.StatusCreated)
 			})
 		}
 	})
@@ -91,7 +94,7 @@ func TestPostProduct(t *testing.T) {
 				Error string `json:"error"`
 			}
 
-			res, err := ts.Post("/products", productToPostProductInput(product))
+			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
 			assert.Nil(t, err)
 
 			err = ts.ReadResponseBody(res, &responseBody)
@@ -117,7 +120,7 @@ func TestPostProduct(t *testing.T) {
 				Error string `json:"error"`
 			}
 
-			res, err := ts.Post("/products", product)
+			res, err := ts.PostWithCookies("/products", product, authCookie)
 			assert.Nil(t, err)
 
 			err = ts.ReadResponseBody(res, &responseBody)
@@ -132,6 +135,8 @@ func TestPostProduct(t *testing.T) {
 func TestGetProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
+
+	auth := InitializeWithAdmin(ts)
 
 	product1 := repository.Product{
 		ID:          1,
@@ -156,8 +161,8 @@ func TestGetProduct(t *testing.T) {
 		AvailableAmount: 6,
 	}
 
-	ts.Post("/products", productToPostProductInput(product1))
-	ts.Post("/products", productToPostProductInput(product2))
+	ts.PostWithCookies("/products", productToPostProductInput(product1), auth)
+	ts.PostWithCookies("/products", productToPostProductInput(product2), auth)
 
 	t.Run("valid fetching", func(t *testing.T) {
 		tests := []struct {
@@ -235,6 +240,8 @@ func TestPatchProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
+	authCookie := InitializeWithAdmin(ts)
+
 	product1 := repository.Product{
 		ID:          1,
 		Name:        "product 1",
@@ -247,7 +254,7 @@ func TestPatchProduct(t *testing.T) {
 		AvailableAmount: 4,
 	}
 
-	ts.Post("/products", productToPostProductInput(product1))
+	ts.PostWithCookies("/products", productToPostProductInput(product1), authCookie)
 
 	t.Run("valid update", func(t *testing.T) {
 		newProduct := product1
@@ -262,7 +269,7 @@ func TestPatchProduct(t *testing.T) {
 			AvailableAmount: &newProduct.AvailableAmount,
 		}
 
-		res, err := ts.Patch("/products/1", reqBody)
+		res, err := ts.PatchWithCookies("/products/1", reqBody, authCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -286,7 +293,7 @@ func TestPatchProduct(t *testing.T) {
 			AvailableAmount: &newProduct.AvailableAmount,
 		}
 
-		res, err := ts.Patch("/products/3", reqBody)
+		res, err := ts.PatchWithCookies("/products/3", reqBody, authCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -302,6 +309,8 @@ func TestDeleteProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
+	authCookie := InitializeWithAdmin(ts)
+
 	product1 := repository.Product{
 		ID:          1,
 		Name:        "product 1",
@@ -314,10 +323,10 @@ func TestDeleteProduct(t *testing.T) {
 		AvailableAmount: 4,
 	}
 
-	ts.Post("/products", productToPostProductInput(product1))
+	ts.PostWithCookies("/products", productToPostProductInput(product1), authCookie)
 
 	t.Run("valid delete", func(t *testing.T) {
-		res, err := ts.Delete("/products/1")
+		res, err := ts.DeleteWithCookies("/products/1", nil, authCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -329,7 +338,7 @@ func TestDeleteProduct(t *testing.T) {
 	})
 
 	t.Run("invalid deletion", func(t *testing.T) {
-		res, err := ts.Delete("/products/3")
+		res, err := ts.DeleteWithCookies("/products/3", nil, authCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -339,4 +348,21 @@ func TestDeleteProduct(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, responseBody.Error, "the requested resource could not be found")
 	})
+}
+
+func InitializeWithAdmin(ts *TestClient) *http.Cookie {
+	body := struct {
+		FullName string `json:"full_name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{
+		FullName: "admin1",
+		Email:    "admin1@example.com",
+		Password: "password1",
+	}
+
+	res, _ := ts.Post("/signup", body)
+	cookie := ts.GetCookie(res, AuthCookie)
+
+	return cookie
 }

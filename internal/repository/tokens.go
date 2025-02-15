@@ -71,7 +71,7 @@ func (m *TokenModel) InsertToken(token Token) error {
 func (m *TokenModel) GetToken(plaintext string, scope string) (Token, error) {
 	hash := sha256.Sum256([]byte(plaintext))
 	for _, token := range m.tokens {
-		if bytes.Equal(hash[:], token.Hash) && token.Scope == scope && token.ExpiryTime.Before(time.Now()) {
+		if bytes.Equal(hash[:], token.Hash) && token.Scope == scope && token.ExpiryTime.After(time.Now()) {
 			return token, nil
 		}
 	}

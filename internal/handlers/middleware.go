@@ -34,7 +34,7 @@ func (app *Application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (app *Application) IsAdmin(next http.Handler) http.Handler {
+func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 1. Check for token
 		token, err := GetAuthToken(r)
