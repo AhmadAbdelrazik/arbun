@@ -55,10 +55,10 @@ func (a *UserService) Logout(token Token, userType string) error {
 	}
 }
 
-func (a *UserService) GetByToken(tokenText, scope, userType string) (repository.User, error) {
+func (a *UserService) GetAuthToken(tokenText, userType string) (repository.User, error) {
 	switch userType {
 	case TypeAdmin:
-		return a.admins.GetAdminByToken(tokenText, scope)
+		return a.admins.GetAdminbyAuthToken(tokenText)
 	default:
 		return nil, fmt.Errorf("getByToken: %w", ErrInvalidUserType)
 	}

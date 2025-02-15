@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"fmt"
@@ -34,6 +33,31 @@ func (app *Application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
+func (app *Application) IsUser(userType string, next http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, err := GetAuthToken(r)
+		if err != nil {
+			app.authenticationErrorResponse(w, r)
+			return
+		}
+
+		admin, err := app.services.Users.GetAuthToken(token.Plaintext, userType)
+		if err != nil {
+			switch {
+			case errors.Is(err, services.ErrInvalidAuthToken):
+				app.authenticationErrorResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
+
+		_ = admin
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 1. Check for token
@@ -45,7 +69,7 @@ func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 		// 2. register admin in the request context
 		// TODO: Find a better way to deal with scope rather
 		// than calling repository module directly
-		admin, err := app.services.Admins.GetAdminByToken(token.Plaintext, repository.ScopeAuth)
+		admin, err := app.services.Admins.GetAdminbyAuthToken(token.Plaintext)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):

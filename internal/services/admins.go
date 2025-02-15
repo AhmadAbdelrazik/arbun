@@ -72,7 +72,7 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 }
 
 func (a *AdminService) Logout(token Token) error {
-	admin, err := a.GetAdminByToken(token.Plaintext, repository.ScopeAuth)
+	admin, err := a.GetAdminbyAuthToken(token.Plaintext)
 	if err != nil {
 		return fmt.Errorf("admin logout: %w", err)
 	}
@@ -100,8 +100,8 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (a *AdminService) GetAdminByToken(tokenText, scope string) (repository.Admin, error) {
-	token, err := a.tokens.GetToken(tokenText, scope)
+func (a *AdminService) GetAdminbyAuthToken(tokenText string) (repository.Admin, error) {
+	token, err := a.tokens.GetToken(tokenText, repository.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrTokenNotFound):
