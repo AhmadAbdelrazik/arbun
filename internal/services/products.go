@@ -39,6 +39,11 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 		AvailableAmount: param.AvailableAmount,
 	}
 
+	v := product.Validate()
+	if v != nil {
+		return repository.Product{}, v
+	}
+
 	newProduct, err := p.model.InsertProduct(product)
 	if err != nil {
 		switch {
@@ -110,6 +115,11 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Pro
 	}
 
 	product := param.updateProduct(fetchedProduct)
+
+	v := product.Validate()
+	if v != nil {
+		return repository.Product{}, v
+	}
 
 	updatedProduct, err := p.model.UpdateProduct(product)
 	if err != nil {

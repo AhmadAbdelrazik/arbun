@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/validator"
 	"errors"
 	"net/http"
 )
@@ -35,7 +36,10 @@ func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 	params := input.GenerateParams()
 	product, err := app.services.Products.InsertProduct(params)
 	if err != nil {
+		var v *validator.Validator
 		switch {
+		case errors.As(err, &v):
+			app.failedValidationResponse(w, r, v.Errors)
 		case errors.Is(err, services.ErrDuplicateProduct):
 			app.badRequestResponse(w, r, err)
 		default:
@@ -124,7 +128,10 @@ func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
 
 	product, err := app.services.Products.UpdateProduct(params)
 	if err != nil {
+		var v *validator.Validator
 		switch {
+		case errors.As(err, &v):
+			app.failedValidationResponse(w, r, v.Errors)
 		case errors.Is(err, services.ErrProductNotFound):
 			app.notFoundResponse(w, r)
 		case errors.Is(err, services.ErrEditConflict):

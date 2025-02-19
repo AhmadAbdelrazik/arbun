@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"AhmadAbdelrazik/arbun/internal/validator"
 	"encoding/json"
 	"errors"
 )
@@ -19,6 +20,20 @@ type Product struct {
 	Properties      map[string]string
 	AvailableAmount int
 	Version         int
+}
+
+func (p Product) Validate() *validator.Validator {
+	v := validator.New()
+
+	v.Check(p.Name != "", "name", "can't be empty")
+	v.Check(len(p.Name) < 100, "name", "must not be more than 100 bytes")
+
+	v.Check(p.Description != "", "description", "can't be empty")
+	v.Check(len(p.Description) < 2000, "description", "must not be more than 2000 bytes")
+
+	v.Check(p.AvailableAmount > 0, "amount", "must be more than 0")
+
+	return v.Err()
 }
 
 func (p Product) String() string {

@@ -104,6 +104,89 @@ func TestPostProduct(t *testing.T) {
 			assert.Equal(t, res.StatusCode, http.StatusBadRequest)
 			assert.Equal(t, responseBody.Error, "product already exists")
 		})
+		t.Run("invalid product amount", func(t *testing.T) {
+			product := repository.Product{
+				ID:              3,
+				Name:            "product 3",
+				Description:     "description of product 3",
+				Vendor:          "vendor 1",
+				AvailableAmount: 0,
+				Version:         1,
+				Properties: map[string]string{
+					"size": "14",
+				},
+			}
+
+			var responseBody struct {
+				Error struct {
+					Amount string `json:"amount"`
+				} `json:"error"`
+			}
+
+			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
+			assert.Nil(t, err)
+
+			ts.ReadResponseBody(res, &responseBody)
+
+			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+			assert.Equal(t, responseBody.Error.Amount, "must be more than 0")
+		})
+		t.Run("missing product name and description", func(t *testing.T) {
+			product := repository.Product{
+				ID:              3,
+				Name:            "",
+				Description:     "",
+				Vendor:          "vendor 1",
+				AvailableAmount: 0,
+				Version:         1,
+				Properties: map[string]string{
+					"size": "14",
+				},
+			}
+
+			var responseBody struct {
+				Error struct {
+					Name        string `json:"name"`
+					Description string `json:"description"`
+				} `json:"error"`
+			}
+
+			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
+			assert.Nil(t, err)
+
+			ts.ReadResponseBody(res, &responseBody)
+
+			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+			assert.Equal(t, responseBody.Error.Name, "can't be empty")
+			assert.Equal(t, responseBody.Error.Description, "can't be empty")
+		})
+		t.Run("missing product name", func(t *testing.T) {
+			product := repository.Product{
+				ID:              3,
+				Name:            "",
+				Description:     "description of product 3",
+				Vendor:          "vendor 1",
+				AvailableAmount: 0,
+				Version:         1,
+				Properties: map[string]string{
+					"size": "14",
+				},
+			}
+
+			var responseBody struct {
+				Error struct {
+					Name string `json:"name"`
+				} `json:"error"`
+			}
+
+			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
+			assert.Nil(t, err)
+
+			ts.ReadResponseBody(res, &responseBody)
+
+			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+			assert.Equal(t, responseBody.Error.Name, "can't be empty")
+		})
 		t.Run("invalid product", func(t *testing.T) {
 			product := repository.Product{
 				ID:              3,
