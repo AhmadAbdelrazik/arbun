@@ -48,8 +48,70 @@ func TestAdminSignup(t *testing.T) {
 	})
 
 	t.Run("invalid signups", func(t *testing.T) {
+		t.Run("missing full name", func(t *testing.T) {
+			requestBody := struct {
+				FullName string `json:"full_name"`
+				Email    string `json:"email"`
+				Password string `json:"password"`
+				UserType string `json:"type"`
+			}{
+				FullName: "",
+				Email:    "admin4@example.com",
+				Password: "password4",
+				UserType: services.TypeAdmin,
+			}
+
+			res, err := ts.Post("/signup", requestBody)
+			assert.Nil(t, err)
+			var responseBody struct {
+				Error struct {
+					FullName string `json:"full_name"`
+				} `json:"error"`
+			}
+
+			err = ts.ReadResponseBody(res, &responseBody)
+			assert.Nil(t, err)
+
+			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+			assert.Equal(t, responseBody.Error.FullName, "must not be empty")
+
+			authCookie := ts.GetCookie(res, AuthCookie)
+			assert.True(t, authCookie == nil)
+		})
+		t.Run("missing email and password", func(t *testing.T) {
+			requestBody := struct {
+				FullName string `json:"full_name"`
+				Email    string `json:"email"`
+				Password string `json:"password"`
+				UserType string `json:"type"`
+			}{
+				FullName: "admin1",
+				Email:    "",
+				Password: "",
+				UserType: services.TypeAdmin,
+			}
+
+			res, err := ts.Post("/signup", requestBody)
+			assert.Nil(t, err)
+			var responseBody struct {
+				Error struct {
+					Email    string `json:"email"`
+					Password string `json:"password"`
+				} `json:"error"`
+			}
+
+			err = ts.ReadResponseBody(res, &responseBody)
+			assert.Nil(t, err)
+
+			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+			assert.Equal(t, responseBody.Error.Email, "must not be empty")
+			assert.Equal(t, responseBody.Error.Password, "must not be empty")
+
+			authCookie := ts.GetCookie(res, AuthCookie)
+			assert.True(t, authCookie == nil)
+		})
 		t.Run("duplicate email", func(t *testing.T) {
-			responseBody := struct {
+			requestBody := struct {
 				FullName string `json:"full_name"`
 				Email    string `json:"email"`
 				Password string `json:"password"`
@@ -61,7 +123,7 @@ func TestAdminSignup(t *testing.T) {
 				UserType: services.TypeAdmin,
 			}
 
-			res, err := ts.Post("/signup", responseBody)
+			res, err := ts.Post("/signup", requestBody)
 			assert.Nil(t, err)
 			assert.Equal(t, res.StatusCode, http.StatusBadRequest)
 
