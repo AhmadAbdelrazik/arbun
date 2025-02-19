@@ -33,6 +33,11 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	}
 	newAdmin.Password.Set(password)
 
+	v := newAdmin.Validate()
+	if v != nil {
+		return Token{}, v
+	}
+
 	// 2. check that email is not used
 	admin, err := a.model.InsertAdmin(newAdmin)
 	if err != nil {

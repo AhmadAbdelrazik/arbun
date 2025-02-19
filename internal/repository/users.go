@@ -1,3 +1,7 @@
 package repository
 
-type User interface{}
+import "AhmadAbdelrazik/arbun/internal/validator"
+
+type User interface {
+	Validate() *validator.Validator
+}

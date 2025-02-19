@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/validator"
 	"errors"
 	"net/http"
 )
@@ -28,7 +29,10 @@ func (app *Application) PostSignup(w http.ResponseWriter, r *http.Request) {
 		input.UserType,
 	)
 	if err != nil {
+		var v *validator.Validator
 		switch {
+		case errors.As(err, &v):
+			app.failedValidationResponse(w, r, v.Errors)
 		case errors.Is(err, services.ErrEmailAlreadyTaken):
 			app.badRequestResponse(w, r, err)
 		default:
