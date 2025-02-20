@@ -18,7 +18,7 @@ var (
 )
 
 type Token struct {
-	AdminID    int64
+	UserID     int64
 	Plaintext  string
 	Hash       []byte
 	ExpiryTime time.Time
@@ -28,7 +28,7 @@ type Token struct {
 func GenerateToken(adminID int64, tokenScope string, ttl time.Duration) (Token, error) {
 	t := Token{
 		Scope:      tokenScope,
-		AdminID:    adminID,
+		UserID:     adminID,
 		ExpiryTime: time.Now().Add(ttl),
 	}
 
@@ -83,7 +83,7 @@ func (m *TokenModel) DeleteTokensByID(id int64) error {
 	tokens := make([]Token, 0, len(m.tokens))
 
 	for _, tt := range m.tokens {
-		if tt.AdminID == id {
+		if tt.UserID == id {
 			continue
 		}
 		tokens = append(tokens, tt)

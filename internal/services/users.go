@@ -4,6 +4,7 @@ import (
 	"AhmadAbdelrazik/arbun/internal/repository"
 	"errors"
 	"fmt"
+	"time"
 )
 
 var (
@@ -14,7 +15,13 @@ var (
 )
 
 type UserService struct {
-	admins *AdminService
+	admins    *AdminService
+	customers *CustomerService
+}
+
+type Token struct {
+	Plaintext  string
+	ExpiryTime time.Time
 }
 
 const (
@@ -22,9 +29,10 @@ const (
 	TypeCustomer = "customer"
 )
 
-func newUserService(admin *AdminService) *UserService {
+func newUserService() *UserService {
 	return &UserService{
-		admins: admin,
+		admins:    newAdminService(),
+		customers: newCustomerService(),
 	}
 }
 
@@ -32,6 +40,8 @@ func (a *UserService) Signup(fullName, email, password, userType string) (Token,
 	switch userType {
 	case TypeAdmin:
 		return a.admins.Signup(fullName, email, password)
+	case TypeCustomer:
+		return a.customers.Signup(fullName, email, password)
 	default:
 		return Token{}, fmt.Errorf("signup: %w", ErrInvalidUserType)
 	}
@@ -41,6 +51,8 @@ func (a *UserService) Login(email, password, userType string) (Token, error) {
 	switch userType {
 	case TypeAdmin:
 		return a.admins.Login(email, password)
+	case TypeCustomer:
+		return a.customers.Login(email, password)
 	default:
 		return Token{}, fmt.Errorf("login: %w", ErrInvalidUserType)
 	}
@@ -50,6 +62,8 @@ func (a *UserService) Logout(token Token, userType string) error {
 	switch userType {
 	case TypeAdmin:
 		return a.admins.Logout(token)
+	case TypeCustomer:
+		return a.customers.Logout(token)
 	default:
 		return fmt.Errorf("logout: %w", ErrInvalidUserType)
 	}
@@ -59,6 +73,8 @@ func (a *UserService) GetAuthToken(tokenText, userType string) (repository.User,
 	switch userType {
 	case TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)
+	case TypeCustomer:
+		return a.customers.GetCustomerbyAuthToken(tokenText)
 	default:
 		return nil, fmt.Errorf("getByToken: %w", ErrInvalidUserType)
 	}

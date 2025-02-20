@@ -7,37 +7,37 @@ import (
 	"time"
 )
 
-type AdminService struct {
-	model  *repository.AdminModel
+type CustomerService struct {
+	model  *repository.CustomerModel
 	tokens *repository.TokenModel
 }
 
-func newAdminService() *AdminService {
-	return &AdminService{
-		model:  repository.NewAdminModel(),
+func newCustomerService() *CustomerService {
+	return &CustomerService{
+		model:  repository.NewCustomerModel(),
 		tokens: repository.NewTokenModel(),
 	}
 }
 
-func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
+func (a *CustomerService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
 	// TODO: Implement Regex Validation
-	newAdmin := repository.Admin{
+	newCustomer := repository.Customer{
 		FullName: fullName,
 		Email:    email,
 	}
-	newAdmin.Password.Set(password)
+	newCustomer.Password.Set(password)
 
-	v := newAdmin.Validate()
+	v := newCustomer.Validate()
 	if v != nil {
 		return Token{}, v
 	}
 
 	// 2. check that email is not used
-	admin, err := a.model.InsertAdmin(newAdmin)
+	admin, err := a.model.InsertCustomer(newCustomer)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrDuplicateAdmin):
+		case errors.Is(err, repository.ErrDuplicateCustomer):
 			return Token{}, ErrEmailAlreadyTaken
 		default:
 			return Token{}, fmt.Errorf("admin signup: %w", err)
@@ -46,12 +46,12 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 
 	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
 }
-func (a *AdminService) Login(email, password string) (Token, error) {
+func (a *CustomerService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
-	admin, err := a.model.GetAdminByEmail(email)
+	admin, err := a.model.GetCustomerByEmail(email)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrAdminNotFound):
+		case errors.Is(err, repository.ErrCustomerNotFound):
 			return Token{}, ErrInvalidCredentials
 		default:
 			return Token{}, fmt.Errorf("admin login: %w", err)
@@ -71,8 +71,8 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
 }
 
-func (a *AdminService) Logout(token Token) error {
-	admin, err := a.GetAdminbyAuthToken(token.Plaintext)
+func (a *CustomerService) Logout(token Token) error {
+	admin, err := a.GetCustomerbyAuthToken(token.Plaintext)
 	if err != nil {
 		return fmt.Errorf("admin logout: %w", err)
 	}
@@ -85,7 +85,7 @@ func (a *AdminService) Logout(token Token) error {
 	return nil
 }
 
-func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
+func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
 	token, err := repository.GenerateToken(adminId, scope, ttl)
 
 	err = a.tokens.InsertToken(token)
@@ -100,24 +100,24 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (a *AdminService) GetAdminbyAuthToken(tokenText string) (repository.Admin, error) {
+func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (repository.Customer, error) {
 	token, err := a.tokens.GetToken(tokenText, repository.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrTokenNotFound):
-			return repository.Admin{}, ErrInvalidAuthToken
+			return repository.Customer{}, ErrInvalidAuthToken
 		default:
-			return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return repository.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 
-	admin, err := a.model.GetAdminByID(token.UserID)
+	admin, err := a.model.GetCustomerByID(token.UserID)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrAdminNotFound):
-			return repository.Admin{}, ErrInvalidAuthToken
+		case errors.Is(err, repository.ErrCustomerNotFound):
+			return repository.Customer{}, ErrInvalidAuthToken
 		default:
-			return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return repository.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 

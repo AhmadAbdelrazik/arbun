@@ -9,19 +9,19 @@ import (
 type ContextKey string
 
 const (
-	AdminContext ContextKey = "admin"
+	UserContext ContextKey = "admin"
 )
 
-func (app *Application) contextSetAdmin(r *http.Request, admin repository.Admin) *http.Request {
-	ctx := context.WithValue(r.Context(), AdminContext, admin)
+func (app *Application) contextSetUser(r *http.Request, user repository.User) *http.Request {
+	ctx := context.WithValue(r.Context(), UserContext, user)
 	return r.WithContext(ctx)
 }
 
-func (app *Application) contextGetUser(r *http.Request) repository.Admin {
-	admin, ok := r.Context().Value(AdminContext).(repository.Admin)
+func (app *Application) contextGetUser(r *http.Request) repository.User {
+	user, ok := r.Context().Value(UserContext).(repository.User)
 	if !ok {
 		panic("missing value in request context")
 	}
 
-	return admin
+	return user
 }

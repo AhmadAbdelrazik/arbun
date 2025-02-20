@@ -17,5 +17,5 @@ func TestTokens(t *testing.T) {
 
 	tt, err := tokenModel.GetToken(token.Plaintext, ScopeAuth)
 	assert.Nil(t, err)
-	assert.Equal(t, tt.AdminID, token.AdminID)
+	assert.Equal(t, tt.UserID, token.UserID)
 }

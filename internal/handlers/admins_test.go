@@ -137,7 +137,7 @@ func TestAdminLogin(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
-	loginTestSetup(ts)
+	adminLoginTestSetup(ts)
 
 	t.Run("valid logins", func(t *testing.T) {
 		tests := []struct {
@@ -212,7 +212,7 @@ func TestAdminLogin(t *testing.T) {
 	})
 }
 
-func loginTestSetup(ts *TestClient) {
+func adminLoginTestSetup(ts *TestClient) {
 	bodies := []struct {
 		FullName string `json:"full_name"`
 		Email    string `json:"email"`

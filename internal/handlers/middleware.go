@@ -69,7 +69,7 @@ func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 		// 2. register admin in the request context
 		// TODO: Find a better way to deal with scope rather
 		// than calling repository module directly
-		admin, err := app.services.Admins.GetAdminbyAuthToken(token.Plaintext)
+		user, err := app.services.Users.GetAuthToken(token.Plaintext, services.TypeAdmin)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):
@@ -80,7 +80,7 @@ func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		r = app.contextSetAdmin(r, admin)
+		r = app.contextSetUser(r, user)
 
 		next.ServeHTTP(w, r)
 	})
