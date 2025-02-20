@@ -8,14 +8,12 @@ import (
 )
 
 type AdminService struct {
-	model  *repository.AdminModel
-	tokens *repository.TokenModel
+	models *repository.Model
 }
 
-func newAdminService() *AdminService {
+func newAdminService(models *repository.Model) *AdminService {
 	return &AdminService{
-		model:  repository.NewAdminModel(),
-		tokens: repository.NewTokenModel(),
+		models: models,
 	}
 }
 
@@ -34,7 +32,7 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	}
 
 	// 2. check that email is not used
-	admin, err := a.model.InsertAdmin(newAdmin)
+	admin, err := a.models.Admins.InsertAdmin(newAdmin)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrDuplicateAdmin):
@@ -48,7 +46,7 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 }
 func (a *AdminService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
-	admin, err := a.model.GetAdminByEmail(email)
+	admin, err := a.models.Admins.GetAdminByEmail(email)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrAdminNotFound):
@@ -77,7 +75,7 @@ func (a *AdminService) Logout(token Token) error {
 		return fmt.Errorf("admin logout: %w", err)
 	}
 
-	err = a.tokens.DeleteTokensByID(admin.ID)
+	err = a.models.Tokens.DeleteTokensByID(admin.ID)
 	if err != nil {
 		return err
 	}
@@ -88,7 +86,7 @@ func (a *AdminService) Logout(token Token) error {
 func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
 	token, err := repository.GenerateToken(adminId, scope, ttl)
 
-	err = a.tokens.InsertToken(token)
+	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
 		return Token{}, fmt.Errorf("admin generate token: %w", err)
 	}
@@ -101,7 +99,7 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 }
 
 func (a *AdminService) GetAdminbyAuthToken(tokenText string) (repository.Admin, error) {
-	token, err := a.tokens.GetToken(tokenText, repository.ScopeAuth)
+	token, err := a.models.Tokens.GetToken(tokenText, repository.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrTokenNotFound):
@@ -111,7 +109,7 @@ func (a *AdminService) GetAdminbyAuthToken(tokenText string) (repository.Admin, 
 		}
 	}
 
-	admin, err := a.model.GetAdminByID(token.UserID)
+	admin, err := a.models.Admins.GetAdminByID(token.UserID)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrAdminNotFound):

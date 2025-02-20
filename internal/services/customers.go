@@ -8,14 +8,12 @@ import (
 )
 
 type CustomerService struct {
-	model  *repository.CustomerModel
-	tokens *repository.TokenModel
+	models *repository.Model
 }
 
-func newCustomerService() *CustomerService {
+func newCustomerService(models *repository.Model) *CustomerService {
 	return &CustomerService{
-		model:  repository.NewCustomerModel(),
-		tokens: repository.NewTokenModel(),
+		models: models,
 	}
 }
 
@@ -34,7 +32,7 @@ func (a *CustomerService) Signup(fullName, email, password string) (Token, error
 	}
 
 	// 2. check that email is not used
-	admin, err := a.model.InsertCustomer(newCustomer)
+	admin, err := a.models.Customers.InsertCustomer(newCustomer)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrDuplicateCustomer):
@@ -48,7 +46,7 @@ func (a *CustomerService) Signup(fullName, email, password string) (Token, error
 }
 func (a *CustomerService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
-	admin, err := a.model.GetCustomerByEmail(email)
+	admin, err := a.models.Customers.GetCustomerByEmail(email)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrCustomerNotFound):
@@ -77,7 +75,7 @@ func (a *CustomerService) Logout(token Token) error {
 		return fmt.Errorf("admin logout: %w", err)
 	}
 
-	err = a.tokens.DeleteTokensByID(admin.ID)
+	err = a.models.Tokens.DeleteTokensByID(admin.ID)
 	if err != nil {
 		return err
 	}
@@ -88,7 +86,7 @@ func (a *CustomerService) Logout(token Token) error {
 func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
 	token, err := repository.GenerateToken(adminId, scope, ttl)
 
-	err = a.tokens.InsertToken(token)
+	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
 		return Token{}, fmt.Errorf("admin generate token: %w", err)
 	}
@@ -101,7 +99,7 @@ func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Du
 }
 
 func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (repository.Customer, error) {
-	token, err := a.tokens.GetToken(tokenText, repository.ScopeAuth)
+	token, err := a.models.Tokens.GetToken(tokenText, repository.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrTokenNotFound):
@@ -111,7 +109,7 @@ func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (repository.C
 		}
 	}
 
-	admin, err := a.model.GetCustomerByID(token.UserID)
+	admin, err := a.models.Customers.GetCustomerByID(token.UserID)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrCustomerNotFound):

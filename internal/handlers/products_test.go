@@ -16,6 +16,7 @@ func productToPostProductInput(p repository.Product) postProductInput {
 		Vendor:      p.Vendor,
 		Amount:      p.AvailableAmount,
 		Properties:  p.Properties,
+		Price:       p.Price,
 	}
 }
 
@@ -39,6 +40,7 @@ func TestPostProduct(t *testing.T) {
 					Vendor:          "vendor 1",
 					AvailableAmount: 5,
 					Version:         1,
+					Price:           23.99,
 					Properties: map[string]string{
 						"size": "12",
 					},
@@ -52,6 +54,7 @@ func TestPostProduct(t *testing.T) {
 					Description:     "description of product 2",
 					Vendor:          "vendor 1",
 					AvailableAmount: 8,
+					Price:           18.99,
 					Version:         1,
 					Properties: map[string]string{
 						"size": "14",
@@ -85,6 +88,7 @@ func TestPostProduct(t *testing.T) {
 				Description:     "description of product 2",
 				Vendor:          "vendor 1",
 				AvailableAmount: 4,
+				Price:           23.99,
 				Version:         1,
 				Properties: map[string]string{
 					"size": "14",
@@ -112,6 +116,7 @@ func TestPostProduct(t *testing.T) {
 				Vendor:          "vendor 1",
 				AvailableAmount: 0,
 				Version:         1,
+				Price:           23.99,
 				Properties: map[string]string{
 					"size": "14",
 				},
@@ -137,6 +142,7 @@ func TestPostProduct(t *testing.T) {
 				Name:            "",
 				Description:     "",
 				Vendor:          "vendor 1",
+				Price:           23.99,
 				AvailableAmount: 0,
 				Version:         1,
 				Properties: map[string]string{
@@ -168,6 +174,7 @@ func TestPostProduct(t *testing.T) {
 				Vendor:          "vendor 1",
 				AvailableAmount: 0,
 				Version:         1,
+				Price:           23.99,
 				Properties: map[string]string{
 					"size": "14",
 				},
@@ -195,6 +202,7 @@ func TestPostProduct(t *testing.T) {
 				Vendor:          "vendor 2",
 				AvailableAmount: 4,
 				Version:         1,
+				Price:           23.99,
 				Properties: map[string]string{
 					"size": "14",
 				},
@@ -227,6 +235,7 @@ func TestGetProduct(t *testing.T) {
 		Name:        "product 1",
 		Description: "description of product 1",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "11",
 		},
@@ -238,6 +247,7 @@ func TestGetProduct(t *testing.T) {
 		Name:        "product 2",
 		Description: "description of product 2",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "14",
 		},
@@ -331,6 +341,7 @@ func TestPatchProduct(t *testing.T) {
 		Name:        "product 1",
 		Description: "description of product 1",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "11",
 		},
@@ -400,6 +411,7 @@ func TestDeleteProduct(t *testing.T) {
 		Name:        "product 1",
 		Description: "description of product 1",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "11",
 		},

@@ -18,6 +18,7 @@ type Product struct {
 	Description     string
 	Vendor          string
 	Properties      map[string]string
+	Price           float32
 	AvailableAmount int
 	Version         int
 }
@@ -30,6 +31,8 @@ func (p Product) Validate() *validator.Validator {
 
 	v.Check(p.Description != "", "description", "can't be empty")
 	v.Check(len(p.Description) < 2000, "description", "must not be more than 2000 bytes")
+
+	v.Check(p.Price != 0, "price", "can't be zero")
 
 	v.Check(p.AvailableAmount > 0, "amount", "must be more than 0")
 

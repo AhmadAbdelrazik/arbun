@@ -29,10 +29,10 @@ const (
 	TypeCustomer = "customer"
 )
 
-func newUserService() *UserService {
+func newUserService(models *repository.Model) *UserService {
 	return &UserService{
-		admins:    newAdminService(),
-		customers: newCustomerService(),
+		admins:    newAdminService(models),
+		customers: newCustomerService(models),
 	}
 }
 

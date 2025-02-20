@@ -13,6 +13,7 @@ type postProductInput struct {
 	Properties  map[string]string `json:"properties"`
 	Vendor      string            `json:"vendor"`
 	Amount      int               `json:"amount"`
+	Price       float32           `json:"price"`
 }
 
 func (p postProductInput) GenerateParams() services.InsertProductParam {
@@ -22,6 +23,7 @@ func (p postProductInput) GenerateParams() services.InsertProductParam {
 		Properties:      p.Properties,
 		Vendor:          p.Vendor,
 		AvailableAmount: p.Amount,
+		Price:           p.Price,
 	}
 }
 
@@ -96,6 +98,7 @@ type patchProductInput struct {
 	Vendor          *string           `json:"vendor"`
 	Properties      map[string]string `json:"properties"`
 	AvailableAmount *int              `json:"available_amount"`
+	Price           *float32          `json:"price"`
 }
 
 func (p patchProductInput) GenerateParams(id int64) services.UpdateProductParam {
@@ -106,6 +109,7 @@ func (p patchProductInput) GenerateParams(id int64) services.UpdateProductParam 
 		Vendor:          p.Vendor,
 		Properties:      p.Properties,
 		AvailableAmount: p.AvailableAmount,
+		Price:           p.Price,
 	}
 }
 

@@ -8,7 +8,8 @@ import (
 
 func TestProductInsertion(t *testing.T) {
 	t.Run("valid insertion", func(t *testing.T) {
-		productService := newProductService()
+		model := repository.NewModel()
+		productService := newProductService(model)
 
 		tests := []struct {
 			TestName string
@@ -21,6 +22,7 @@ func TestProductInsertion(t *testing.T) {
 					ID:          1,
 					Description: "product 1 description",
 					Vendor:      "vendor 1",
+					Price:       23.99,
 					Properties: map[string]string{
 						"size": "12",
 					},
@@ -35,6 +37,7 @@ func TestProductInsertion(t *testing.T) {
 					ID:          2,
 					Description: "product 2 description",
 					Vendor:      "vendor 1",
+					Price:       23.99,
 					Properties: map[string]string{
 						"size": "12",
 					},
@@ -56,11 +59,13 @@ func TestProductInsertion(t *testing.T) {
 	})
 
 	t.Run("invalid insertion", func(t *testing.T) {
-		productService := newProductService()
+		model := repository.NewModel()
+		productService := newProductService(model)
 		firstProduct := repository.Product{
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
+			Price:       23.99,
 			Properties: map[string]string{
 				"size": "12",
 			},
@@ -72,6 +77,7 @@ func TestProductInsertion(t *testing.T) {
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
+			Price:       23.99,
 			Properties: map[string]string{
 				"size": "12",
 			},
@@ -87,12 +93,14 @@ func TestProductInsertion(t *testing.T) {
 }
 
 func TestProductFetching(t *testing.T) {
-	productService := newProductService()
+	model := repository.NewModel()
+	productService := newProductService(model)
 
 	product1 := repository.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "12",
 		},
@@ -105,6 +113,7 @@ func TestProductFetching(t *testing.T) {
 		Name:        "product 2",
 		Description: "product 2 description",
 		Vendor:      "vendor 2",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "14",
 		},
@@ -141,12 +150,14 @@ func TestProductFetching(t *testing.T) {
 }
 
 func TestProductUpdate(t *testing.T) {
-	service := newProductService()
+	model := repository.NewModel()
+	service := newProductService(model)
 
 	product1 := repository.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "12",
 		},
@@ -182,11 +193,13 @@ func TestProductUpdate(t *testing.T) {
 }
 
 func TestProductDeletion(t *testing.T) {
-	service := newProductService()
+	model := repository.NewModel()
+	service := newProductService(model)
 	product1 := repository.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
+		Price:       23.99,
 		Properties: map[string]string{
 			"size": "12",
 		},
@@ -219,5 +232,6 @@ func productToInsertParam(p repository.Product) InsertProductParam {
 		Vendor:          p.Vendor,
 		Properties:      p.Properties,
 		AvailableAmount: p.AvailableAmount,
+		Price:           p.Price,
 	}
 }

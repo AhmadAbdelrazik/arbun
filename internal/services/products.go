@@ -13,12 +13,12 @@ var (
 )
 
 type ProductService struct {
-	model *repository.ProductModel
+	models *repository.Model
 }
 
-func newProductService() *ProductService {
+func newProductService(model *repository.Model) *ProductService {
 	return &ProductService{
-		model: repository.NewProductModel(),
+		models: model,
 	}
 }
 
@@ -27,6 +27,7 @@ type InsertProductParam struct {
 	Description     string
 	Vendor          string
 	Properties      map[string]string
+	Price           float32
 	AvailableAmount int
 }
 
@@ -36,6 +37,7 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 		Description:     param.Description,
 		Properties:      param.Properties,
 		Vendor:          param.Vendor,
+		Price:           param.Price,
 		AvailableAmount: param.AvailableAmount,
 	}
 
@@ -44,7 +46,7 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 		return repository.Product{}, v
 	}
 
-	newProduct, err := p.model.InsertProduct(product)
+	newProduct, err := p.models.Products.InsertProduct(product)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrDuplicateProduct):
@@ -58,7 +60,7 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 }
 
 func (p *ProductService) GetProductByID(id int64) (repository.Product, error) {
-	product, err := p.model.GetProductByID(id)
+	product, err := p.models.Products.GetProductByID(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrProductNotFound):
@@ -71,7 +73,7 @@ func (p *ProductService) GetProductByID(id int64) (repository.Product, error) {
 }
 
 func (p *ProductService) GetAllProducts() ([]repository.Product, error) {
-	products, err := p.model.GetAllProducts()
+	products, err := p.models.Products.GetAllProducts()
 	if err != nil {
 		return []repository.Product{}, fmt.Errorf("get all products: %w", err)
 	}
@@ -83,6 +85,7 @@ type UpdateProductParam struct {
 	Name            *string
 	Description     *string
 	Vendor          *string
+	Price           *float32
 	Properties      map[string]string
 	AvailableAmount *int
 }
@@ -100,6 +103,9 @@ func (u *UpdateProductParam) updateProduct(product repository.Product) repositor
 	}
 	if u.AvailableAmount != nil {
 		result.AvailableAmount = *u.AvailableAmount
+	}
+	if u.Price != nil {
+		result.Price = *u.Price
 	}
 	if u.Properties != nil {
 		result.Properties = u.Properties
@@ -121,7 +127,7 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Pro
 		return repository.Product{}, v
 	}
 
-	updatedProduct, err := p.model.UpdateProduct(product)
+	updatedProduct, err := p.models.Products.UpdateProduct(product)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrEditConflict):
@@ -135,7 +141,7 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Pro
 }
 
 func (p *ProductService) DeleteProduct(id int64) error {
-	err := p.model.DeleteProduct(id)
+	err := p.models.Products.DeleteProduct(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrProductNotFound):
