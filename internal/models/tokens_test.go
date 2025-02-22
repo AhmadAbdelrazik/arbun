@@ -2,6 +2,7 @@ package models
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
+	"AhmadAbdelrazik/arbun/internal/domain/token"
 	"testing"
 	"time"
 )
@@ -9,7 +10,7 @@ import (
 func TestTokens(t *testing.T) {
 	tokenModel := NewTokenModel()
 
-	token, err := GenerateToken(1, ScopeAuth, 3*time.Hour)
+	token, err := token.Generate(1, ScopeAuth, 3*time.Hour)
 	assert.Nil(t, err)
 
 	err = tokenModel.InsertToken(token)

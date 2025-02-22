@@ -2,6 +2,7 @@ package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain/customer"
+	"AhmadAbdelrazik/arbun/internal/domain/token"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -84,7 +85,7 @@ func (a *CustomerService) Logout(token Token) error {
 }
 
 func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := models.GenerateToken(adminId, scope, ttl)
+	token, err := token.Generate(adminId, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
