@@ -1,47 +1,40 @@
 package models
 
 import (
-	"AhmadAbdelrazik/arbun/internal/validator"
-	"fmt"
+	"AhmadAbdelrazik/arbun/internal/domain/cart"
 	"slices"
 )
 
-type CartItem struct {
-	ProductID int64 `json:"product_id"`
-	Amount    int   `json:"amount"`
-}
-
-func (c CartItem) Validate() *validator.Validator {
-	v := validator.New()
-
-	v.Check(c.Amount != 0, "quantity", "must not be 0")
-
-	return v.Err()
-}
-
 type CartModel struct {
-	carts     map[int64][]CartItem
+	carts     map[int64][]cart.CartItem
 	idCounter int64
 }
 
-func (m *CartModel) GetAll(customerID int64) ([]CartItem, error) {
+func newCartModel() *CartModel {
+	return &CartModel{
+		carts:     make(map[int64][]cart.CartItem),
+		idCounter: 1,
+	}
+}
+
+func (m *CartModel) GetAll(customerID int64) ([]cart.CartItem, error) {
+	if _, ok := m.carts[customerID]; !ok {
+		m.carts[customerID] = make([]cart.CartItem, 0)
+	}
+
 	return m.carts[customerID], nil
 }
 
-func (m *CartModel) SetItem(customerID int64, item CartItem) error {
-	cartItems, err := m.GetAll(customerID)
-	if err != nil {
-		return fmt.Errorf("InsertItem: %w", err)
-	}
+func (m *CartModel) SetItem(customerID int64, item cart.CartItem) error {
 
-	for i, cartItem := range cartItems {
+	for i, cartItem := range m.carts[customerID] {
 		if cartItem.ProductID == item.ProductID {
-			cartItems[i].Amount = item.Amount
+			m.carts[customerID][i].Amount = item.Amount
 			return nil
 		}
 	}
 
-	cartItems = append(cartItems, item)
+	m.carts[customerID] = append(m.carts[customerID], item)
 
 	return nil
 }

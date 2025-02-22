@@ -17,7 +17,7 @@ type ProductModel struct {
 	idCounter int64
 }
 
-func NewProductModel() *ProductModel {
+func newProductModel() *ProductModel {
 	return &ProductModel{
 		products:  make([]product.Product, 0),
 		idCounter: 1,

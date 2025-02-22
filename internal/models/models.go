@@ -10,9 +10,10 @@ type Model struct {
 
 func NewModel() *Model {
 	return &Model{
-		Products:  NewProductModel(),
-		Admins:    NewAdminModel(),
-		Customers: NewCustomerModel(),
-		Tokens:    NewTokenModel(),
+		Products:  newProductModel(),
+		Admins:    newAdminModel(),
+		Customers: newCustomerModel(),
+		Tokens:    newTokenModel(),
+		Carts:     newCartModel(),
 	}
 }

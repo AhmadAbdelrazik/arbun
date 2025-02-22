@@ -9,7 +9,7 @@ import (
 type ContextKey string
 
 const (
-	UserContext ContextKey = "admin"
+	UserContext ContextKey = "user"
 )
 
 func (app *Application) contextSetUser(r *http.Request, user models.User) *http.Request {
@@ -18,10 +18,10 @@ func (app *Application) contextSetUser(r *http.Request, user models.User) *http.
 }
 
 func (app *Application) contextGetUser(r *http.Request) models.User {
-	user, ok := r.Context().Value(UserContext).(models.User)
-	if !ok {
+	user := r.Context().Value(UserContext)
+	if user == nil {
 		panic("missing value in request context")
 	}
 
-	return user
+	return user.(models.User)
 }

@@ -15,7 +15,7 @@ type AdminModel struct {
 	idCounter int64
 }
 
-func NewAdminModel() *AdminModel {
+func newAdminModel() *AdminModel {
 	return &AdminModel{
 		admins:    make([]admin.Admin, 0),
 		idCounter: 1,

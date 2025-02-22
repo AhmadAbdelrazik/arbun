@@ -114,6 +114,9 @@ func (c *TestClient) Do(method, endpoint string, body any, cookies ...*http.Cook
 	return http.DefaultClient.Do(req)
 }
 
+func (c *TestClient) GetWithCookies(endpoint string, cookies ...*http.Cookie) (*http.Response, error) {
+	return c.Do(http.MethodGet, endpoint, nil, cookies...)
+}
 func (c *TestClient) PostWithCookies(endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
 	return c.Do(http.MethodPost, endpoint, body, cookies...)
 }

@@ -41,7 +41,7 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 			return
 		}
 
-		admin, err := app.services.Users.GetAuthToken(token.Plaintext, userType)
+		user, err := app.services.Users.GetAuthToken(token.Plaintext, userType)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):
@@ -52,7 +52,7 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 			return
 		}
 
-		_ = admin
+		r = app.contextSetUser(r, user)
 
 		next.ServeHTTP(w, r)
 	})

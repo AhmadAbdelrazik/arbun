@@ -20,7 +20,7 @@ type TokenModel struct {
 	tokens []token.Token
 }
 
-func NewTokenModel() *TokenModel {
+func newTokenModel() *TokenModel {
 	return &TokenModel{
 		tokens: make([]token.Token, 0),
 	}

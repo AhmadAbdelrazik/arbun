@@ -8,7 +8,7 @@ import (
 )
 
 func TestTokens(t *testing.T) {
-	tokenModel := NewTokenModel()
+	tokenModel := newTokenModel()
 
 	token, err := token.Generate(1, ScopeAuth, 3*time.Hour)
 	assert.Nil(t, err)

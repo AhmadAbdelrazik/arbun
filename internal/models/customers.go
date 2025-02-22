@@ -16,7 +16,7 @@ type CustomerModel struct {
 	idCounter int64
 }
 
-func NewCustomerModel() *CustomerModel {
+func newCustomerModel() *CustomerModel {
 	return &CustomerModel{
 		customers: make([]customer.Customer, 0),
 		idCounter: 1,

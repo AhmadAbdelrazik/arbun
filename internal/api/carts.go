@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain/customer"
-	"AhmadAbdelrazik/arbun/internal/models"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
@@ -27,7 +26,7 @@ func (app *Application) PostCartItems(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetUser(r).(customer.Customer)
 
 	var input struct {
-		Items []models.CartItem `json:"items"`
+		Items []services.InputItem `json:"items"`
 	}
 
 	err := readJSON(w, r, &input)
