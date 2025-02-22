@@ -1,7 +1,7 @@
 package main
 
 import (
-	"AhmadAbdelrazik/arbun/internal/handlers"
+	"AhmadAbdelrazik/arbun/internal/api"
 	"log"
 )
 

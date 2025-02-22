@@ -1,4 +1,4 @@
-package repository
+package models
 
 import (
 	"bytes"
@@ -62,7 +62,6 @@ func NewTokenModel() *TokenModel {
 }
 
 func (m *TokenModel) InsertToken(token Token) error {
-	// NOTE: DO NOT SAVE PLAINTEXT
 	token.Plaintext = ""
 	m.tokens = append(m.tokens, token)
 	return nil

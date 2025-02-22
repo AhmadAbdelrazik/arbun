@@ -1,17 +1,17 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
 	"time"
 )
 
 type CustomerService struct {
-	models *repository.Model
+	models *models.Model
 }
 
-func newCustomerService(models *repository.Model) *CustomerService {
+func newCustomerService(models *models.Model) *CustomerService {
 	return &CustomerService{
 		models: models,
 	}
@@ -19,8 +19,7 @@ func newCustomerService(models *repository.Model) *CustomerService {
 
 func (a *CustomerService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	// TODO: Implement Regex Validation
-	newCustomer := repository.Customer{
+	newCustomer := models.Customer{
 		FullName: fullName,
 		Email:    email,
 	}
@@ -35,21 +34,21 @@ func (a *CustomerService) Signup(fullName, email, password string) (Token, error
 	admin, err := a.models.Customers.InsertCustomer(newCustomer)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrDuplicateCustomer):
+		case errors.Is(err, models.ErrDuplicateCustomer):
 			return Token{}, ErrEmailAlreadyTaken
 		default:
 			return Token{}, fmt.Errorf("admin signup: %w", err)
 		}
 	}
 
-	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
 }
 func (a *CustomerService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
 	admin, err := a.models.Customers.GetCustomerByEmail(email)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrCustomerNotFound):
+		case errors.Is(err, models.ErrCustomerNotFound):
 			return Token{}, ErrInvalidCredentials
 		default:
 			return Token{}, fmt.Errorf("admin login: %w", err)
@@ -66,7 +65,7 @@ func (a *CustomerService) Login(email, password string) (Token, error) {
 	}
 
 	// 3. Return an Auth token
-	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
 }
 
 func (a *CustomerService) Logout(token Token) error {
@@ -84,7 +83,7 @@ func (a *CustomerService) Logout(token Token) error {
 }
 
 func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := repository.GenerateToken(adminId, scope, ttl)
+	token, err := models.GenerateToken(adminId, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,24 +97,24 @@ func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Du
 	return result, nil
 }
 
-func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (repository.Customer, error) {
-	token, err := a.models.Tokens.GetToken(tokenText, repository.ScopeAuth)
+func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (models.Customer, error) {
+	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrTokenNotFound):
-			return repository.Customer{}, ErrInvalidAuthToken
+		case errors.Is(err, models.ErrTokenNotFound):
+			return models.Customer{}, ErrInvalidAuthToken
 		default:
-			return repository.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return models.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 
 	admin, err := a.models.Customers.GetCustomerByID(token.UserID)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrCustomerNotFound):
-			return repository.Customer{}, ErrInvalidAuthToken
+		case errors.Is(err, models.ErrCustomerNotFound):
+			return models.Customer{}, ErrInvalidAuthToken
 		default:
-			return repository.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return models.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 

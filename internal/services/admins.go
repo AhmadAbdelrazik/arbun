@@ -1,17 +1,17 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
 	"time"
 )
 
 type AdminService struct {
-	models *repository.Model
+	models *models.Model
 }
 
-func newAdminService(models *repository.Model) *AdminService {
+func newAdminService(models *models.Model) *AdminService {
 	return &AdminService{
 		models: models,
 	}
@@ -19,8 +19,7 @@ func newAdminService(models *repository.Model) *AdminService {
 
 func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	// TODO: Implement Regex Validation
-	newAdmin := repository.Admin{
+	newAdmin := models.Admin{
 		FullName: fullName,
 		Email:    email,
 	}
@@ -35,21 +34,21 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	admin, err := a.models.Admins.InsertAdmin(newAdmin)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrDuplicateAdmin):
+		case errors.Is(err, models.ErrDuplicateAdmin):
 			return Token{}, ErrEmailAlreadyTaken
 		default:
 			return Token{}, fmt.Errorf("admin signup: %w", err)
 		}
 	}
 
-	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
 }
 func (a *AdminService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
 	admin, err := a.models.Admins.GetAdminByEmail(email)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrAdminNotFound):
+		case errors.Is(err, models.ErrAdminNotFound):
 			return Token{}, ErrInvalidCredentials
 		default:
 			return Token{}, fmt.Errorf("admin login: %w", err)
@@ -66,7 +65,7 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 	}
 
 	// 3. Return an Auth token
-	return a.generateToken(admin.ID, repository.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
 }
 
 func (a *AdminService) Logout(token Token) error {
@@ -84,7 +83,7 @@ func (a *AdminService) Logout(token Token) error {
 }
 
 func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := repository.GenerateToken(adminId, scope, ttl)
+	token, err := models.GenerateToken(adminId, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,24 +97,24 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (a *AdminService) GetAdminbyAuthToken(tokenText string) (repository.Admin, error) {
-	token, err := a.models.Tokens.GetToken(tokenText, repository.ScopeAuth)
+func (a *AdminService) GetAdminbyAuthToken(tokenText string) (models.Admin, error) {
+	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrTokenNotFound):
-			return repository.Admin{}, ErrInvalidAuthToken
+		case errors.Is(err, models.ErrTokenNotFound):
+			return models.Admin{}, ErrInvalidAuthToken
 		default:
-			return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return models.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 
 	admin, err := a.models.Admins.GetAdminByID(token.UserID)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrAdminNotFound):
-			return repository.Admin{}, ErrInvalidAuthToken
+		case errors.Is(err, models.ErrAdminNotFound):
+			return models.Admin{}, ErrInvalidAuthToken
 		default:
-			return repository.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return models.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 

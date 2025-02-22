@@ -1,4 +1,4 @@
-package repository
+package models
 
 type Model struct {
 	Products  *ProductModel

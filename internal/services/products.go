@@ -1,7 +1,8 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
 )
@@ -13,10 +14,10 @@ var (
 )
 
 type ProductService struct {
-	models *repository.Model
+	models *models.Model
 }
 
-func newProductService(model *repository.Model) *ProductService {
+func newProductService(model *models.Model) *ProductService {
 	return &ProductService{
 		models: model,
 	}
@@ -31,8 +32,8 @@ type InsertProductParam struct {
 	AvailableAmount int
 }
 
-func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Product, error) {
-	product := repository.Product{
+func (s *ProductService) InsertProduct(param InsertProductParam) (product.Product, error) {
+	p := product.Product{
 		Name:            param.Name,
 		Description:     param.Description,
 		Properties:      param.Properties,
@@ -41,41 +42,41 @@ func (p *ProductService) InsertProduct(param InsertProductParam) (repository.Pro
 		AvailableAmount: param.AvailableAmount,
 	}
 
-	v := product.Validate()
+	v := p.Validate()
 	if v != nil {
-		return repository.Product{}, v
+		return product.Product{}, v
 	}
 
-	newProduct, err := p.models.Products.InsertProduct(product)
+	newProduct, err := s.models.Products.InsertProduct(p)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrDuplicateProduct):
-			return repository.Product{}, ErrDuplicateProduct
+		case errors.Is(err, models.ErrDuplicateProduct):
+			return product.Product{}, ErrDuplicateProduct
 		default:
-			return repository.Product{}, fmt.Errorf("insert product: %w", err)
+			return product.Product{}, fmt.Errorf("insert product: %w", err)
 		}
 	}
 
 	return newProduct, nil
 }
 
-func (p *ProductService) GetProductByID(id int64) (repository.Product, error) {
-	product, err := p.models.Products.GetProductByID(id)
+func (p *ProductService) GetProductByID(id int64) (product.Product, error) {
+	produc, err := p.models.Products.GetProductByID(id)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrProductNotFound):
-			return repository.Product{}, ErrProductNotFound
+		case errors.Is(err, models.ErrProductNotFound):
+			return product.Product{}, ErrProductNotFound
 		default:
-			return repository.Product{}, fmt.Errorf("get product by id: %w", err)
+			return product.Product{}, fmt.Errorf("get product by id: %w", err)
 		}
 	}
-	return product, nil
+	return produc, nil
 }
 
-func (p *ProductService) GetAllProducts() ([]repository.Product, error) {
+func (p *ProductService) GetAllProducts() ([]product.Product, error) {
 	products, err := p.models.Products.GetAllProducts()
 	if err != nil {
-		return []repository.Product{}, fmt.Errorf("get all products: %w", err)
+		return []product.Product{}, fmt.Errorf("get all products: %w", err)
 	}
 	return products, nil
 }
@@ -90,7 +91,7 @@ type UpdateProductParam struct {
 	AvailableAmount *int
 }
 
-func (u *UpdateProductParam) updateProduct(product repository.Product) repository.Product {
+func (u *UpdateProductParam) updateProduct(product product.Product) product.Product {
 	result := product
 	if u.Name != nil {
 		result.Name = *u.Name
@@ -114,26 +115,26 @@ func (u *UpdateProductParam) updateProduct(product repository.Product) repositor
 	return result
 }
 
-func (p *ProductService) UpdateProduct(param UpdateProductParam) (repository.Product, error) {
+func (p *ProductService) UpdateProduct(param UpdateProductParam) (product.Product, error) {
 	fetchedProduct, err := p.GetProductByID(param.ID)
 	if err != nil {
-		return repository.Product{}, fmt.Errorf("update product: %w", err)
+		return product.Product{}, fmt.Errorf("update product: %w", err)
 	}
 
-	product := param.updateProduct(fetchedProduct)
+	prod := param.updateProduct(fetchedProduct)
 
-	v := product.Validate()
+	v := prod.Validate()
 	if v != nil {
-		return repository.Product{}, v
+		return product.Product{}, v
 	}
 
-	updatedProduct, err := p.models.Products.UpdateProduct(product)
+	updatedProduct, err := p.models.Products.UpdateProduct(prod)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrEditConflict):
-			return repository.Product{}, ErrEditConflict
+		case errors.Is(err, models.ErrEditConflict):
+			return product.Product{}, ErrEditConflict
 		default:
-			return repository.Product{}, fmt.Errorf("update product: %w", err)
+			return product.Product{}, fmt.Errorf("update product: %w", err)
 		}
 	}
 
@@ -144,7 +145,7 @@ func (p *ProductService) DeleteProduct(id int64) error {
 	err := p.models.Products.DeleteProduct(id)
 	if err != nil {
 		switch {
-		case errors.Is(err, repository.ErrProductNotFound):
+		case errors.Is(err, models.ErrProductNotFound):
 			return ErrProductNotFound
 		default:
 			return fmt.Errorf("get product by id: %w", err)

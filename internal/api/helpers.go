@@ -13,7 +13,7 @@ import (
 
 type envelope map[string]interface{}
 
-func (app *Application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+func writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func (app *Application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *Application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
@@ -83,8 +83,8 @@ func (app *Application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	return nil
 }
 
-func (app *Application) readIDParam(r *http.Request) (int64, error) {
-	idStr := r.PathValue("id")
+func readIDParam(r *http.Request, param string) (int64, error) {
+	idStr := r.PathValue(param)
 	id, err := strconv.ParseInt(idStr, 10, 64)
 
 	if err != nil || id < 1 {
@@ -94,7 +94,7 @@ func (app *Application) readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func (app *Application) readString(qs url.Values, key string, defaultValue string) string {
+func readString(qs url.Values, key string, defaultValue string) string {
 	s := qs.Get(key)
 
 	if s == "" {
@@ -104,7 +104,7 @@ func (app *Application) readString(qs url.Values, key string, defaultValue strin
 	return s
 }
 
-func (app *Application) readCSV(qs url.Values, key string, defaultValue []string) []string {
+func readCSV(qs url.Values, key string, defaultValue []string) []string {
 	csv := qs.Get(key)
 
 	if csv == "" {

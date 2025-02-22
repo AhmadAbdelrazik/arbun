@@ -29,7 +29,7 @@ func (p postProductInput) GenerateParams() services.InsertProductParam {
 
 func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 	var input postProductInput
-	err := app.readJSON(w, r, &input)
+	err := readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -50,14 +50,14 @@ func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"product": product}, nil)
+	err = writeJSON(w, http.StatusCreated, envelope{"product": product}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *Application) GetProduct(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -74,7 +74,7 @@ func (app *Application) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"product": product}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"product": product}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -86,7 +86,7 @@ func (app *Application) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"products": products}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"products": products}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -114,7 +114,7 @@ func (p patchProductInput) GenerateParams(id int64) services.UpdateProductParam 
 }
 
 func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -122,7 +122,7 @@ func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
 
 	var input patchProductInput
 
-	err = app.readJSON(w, r, &input)
+	err = readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -146,14 +146,14 @@ func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"product": product}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"product": product}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 
 }
 func (app *Application) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -170,5 +170,5 @@ func (app *Application) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "deleted successfully"}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"message": "deleted successfully"}, nil)
 }

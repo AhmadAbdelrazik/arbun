@@ -1,7 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
 	"time"
@@ -29,7 +29,7 @@ const (
 	TypeCustomer = "customer"
 )
 
-func newUserService(models *repository.Model) *UserService {
+func newUserService(models *models.Model) *UserService {
 	return &UserService{
 		admins:    newAdminService(models),
 		customers: newCustomerService(models),
@@ -69,7 +69,7 @@ func (a *UserService) Logout(token Token, userType string) error {
 	}
 }
 
-func (a *UserService) GetAuthToken(tokenText, userType string) (repository.User, error) {
+func (a *UserService) GetAuthToken(tokenText, userType string) (models.User, error) {
 	switch userType {
 	case TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)

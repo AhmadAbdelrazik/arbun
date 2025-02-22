@@ -2,14 +2,14 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/domain/product"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"fmt"
 	"net/http"
 	"testing"
 )
 
-func productToPostProductInput(p repository.Product) postProductInput {
+func productToPostProductInput(p product.Product) postProductInput {
 	return postProductInput{
 		Name:        p.Name,
 		Description: p.Description,
@@ -29,11 +29,11 @@ func TestPostProduct(t *testing.T) {
 	t.Run("valid insertion", func(t *testing.T) {
 		tests := []struct {
 			testName string
-			Product  repository.Product
+			Product  product.Product
 		}{
 			{
 				testName: "first product",
-				Product: repository.Product{
+				Product: product.Product{
 					ID:              1,
 					Name:            "product 1",
 					Description:     "description of product 1",
@@ -48,7 +48,7 @@ func TestPostProduct(t *testing.T) {
 			},
 			{
 				testName: "second product",
-				Product: repository.Product{
+				Product: product.Product{
 					ID:              2,
 					Name:            "product 2",
 					Description:     "description of product 2",
@@ -69,7 +69,7 @@ func TestPostProduct(t *testing.T) {
 				assert.Nil(t, err)
 
 				var responseBody struct {
-					Product repository.Product `json:"product"`
+					Product product.Product `json:"product"`
 				}
 
 				err = ts.ReadResponseBody(res, &responseBody)
@@ -82,7 +82,7 @@ func TestPostProduct(t *testing.T) {
 
 	t.Run("invalid insertion", func(t *testing.T) {
 		t.Run("duplicate product", func(t *testing.T) {
-			product := repository.Product{
+			product := product.Product{
 				ID:              3,
 				Name:            "product 2",
 				Description:     "description of product 2",
@@ -109,7 +109,7 @@ func TestPostProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error, "product already exists")
 		})
 		t.Run("invalid product amount", func(t *testing.T) {
-			product := repository.Product{
+			product := product.Product{
 				ID:              3,
 				Name:            "product 3",
 				Description:     "description of product 3",
@@ -137,7 +137,7 @@ func TestPostProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error.Amount, "must be more than 0")
 		})
 		t.Run("missing product name and description", func(t *testing.T) {
-			product := repository.Product{
+			product := product.Product{
 				ID:              3,
 				Name:            "",
 				Description:     "",
@@ -167,7 +167,7 @@ func TestPostProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error.Description, "can't be empty")
 		})
 		t.Run("missing product name", func(t *testing.T) {
-			product := repository.Product{
+			product := product.Product{
 				ID:              3,
 				Name:            "",
 				Description:     "description of product 3",
@@ -195,7 +195,7 @@ func TestPostProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error.Name, "can't be empty")
 		})
 		t.Run("invalid product", func(t *testing.T) {
-			product := repository.Product{
+			product := product.Product{
 				ID:              3,
 				Name:            "product 2",
 				Description:     "description of product 2",
@@ -230,7 +230,7 @@ func TestGetProduct(t *testing.T) {
 
 	auth := InitializeWithAdmin(ts)
 
-	product1 := repository.Product{
+	product1 := product.Product{
 		ID:          1,
 		Name:        "product 1",
 		Description: "description of product 1",
@@ -242,7 +242,7 @@ func TestGetProduct(t *testing.T) {
 		Version:         1,
 		AvailableAmount: 4,
 	}
-	product2 := repository.Product{
+	product2 := product.Product{
 		ID:          2,
 		Name:        "product 2",
 		Description: "description of product 2",
@@ -262,7 +262,7 @@ func TestGetProduct(t *testing.T) {
 		tests := []struct {
 			testName string
 			ID       int64
-			product  repository.Product
+			product  product.Product
 		}{
 			{
 				testName: "product 1",
@@ -278,7 +278,7 @@ func TestGetProduct(t *testing.T) {
 
 		for _, tt := range tests {
 			var responseBody struct {
-				Product repository.Product `json:"product"`
+				Product product.Product `json:"product"`
 			}
 			t.Run(tt.testName, func(t *testing.T) {
 				res, err := ts.Get(fmt.Sprintf("/products/%v", tt.ID))
@@ -320,7 +320,7 @@ func TestGetProduct(t *testing.T) {
 	})
 }
 
-func productToPatchProductInput(p repository.Product) patchProductInput {
+func productToPatchProductInput(p product.Product) patchProductInput {
 	return patchProductInput{
 		Name:            &p.Name,
 		Description:     &p.Description,
@@ -336,7 +336,7 @@ func TestPatchProduct(t *testing.T) {
 
 	authCookie := InitializeWithAdmin(ts)
 
-	product1 := repository.Product{
+	product1 := product.Product{
 		ID:          1,
 		Name:        "product 1",
 		Description: "description of product 1",
@@ -368,7 +368,7 @@ func TestPatchProduct(t *testing.T) {
 		assert.Nil(t, err)
 
 		var responseBody struct {
-			Product repository.Product `json:"product"`
+			Product product.Product `json:"product"`
 		}
 		err = ts.ReadResponseBody(res, &responseBody)
 		assert.Nil(t, err)
@@ -406,7 +406,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	authCookie := InitializeWithAdmin(ts)
 
-	product1 := repository.Product{
+	product1 := product.Product{
 		ID:          1,
 		Name:        "product 1",
 		Description: "description of product 1",

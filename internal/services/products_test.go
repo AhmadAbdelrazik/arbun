@@ -2,22 +2,23 @@ package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/repository"
+	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/models"
 	"testing"
 )
 
 func TestProductInsertion(t *testing.T) {
 	t.Run("valid insertion", func(t *testing.T) {
-		model := repository.NewModel()
+		model := models.NewModel()
 		productService := newProductService(model)
 
 		tests := []struct {
 			TestName string
-			product  repository.Product
+			product  product.Product
 		}{
 			{
 				TestName: "product 1",
-				product: repository.Product{
+				product: product.Product{
 					Name:        "product 1",
 					ID:          1,
 					Description: "product 1 description",
@@ -32,7 +33,7 @@ func TestProductInsertion(t *testing.T) {
 			},
 			{
 				TestName: "product 2",
-				product: repository.Product{
+				product: product.Product{
 					Name:        "product 2",
 					ID:          2,
 					Description: "product 2 description",
@@ -59,9 +60,9 @@ func TestProductInsertion(t *testing.T) {
 	})
 
 	t.Run("invalid insertion", func(t *testing.T) {
-		model := repository.NewModel()
+		model := models.NewModel()
 		productService := newProductService(model)
-		firstProduct := repository.Product{
+		firstProduct := product.Product{
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
@@ -73,7 +74,7 @@ func TestProductInsertion(t *testing.T) {
 		}
 		productService.InsertProduct(productToInsertParam(firstProduct))
 
-		invalidProduct := repository.Product{
+		invalidProduct := product.Product{
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
@@ -84,19 +85,19 @@ func TestProductInsertion(t *testing.T) {
 			AvailableAmount: 6,
 		}
 
-		product, err := productService.InsertProduct(productToInsertParam(invalidProduct))
+		p, err := productService.InsertProduct(productToInsertParam(invalidProduct))
 
-		assert.Err(t, err, repository.ErrDuplicateProduct)
-		assert.Equal(t, product.String(), repository.Product{}.String())
+		assert.Err(t, err, models.ErrDuplicateProduct)
+		assert.Equal(t, p.String(), product.Product{}.String())
 
 	})
 }
 
 func TestProductFetching(t *testing.T) {
-	model := repository.NewModel()
+	model := models.NewModel()
 	productService := newProductService(model)
 
-	product1 := repository.Product{
+	product1 := product.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -109,7 +110,7 @@ func TestProductFetching(t *testing.T) {
 		ID:              1,
 	}
 
-	product2 := repository.Product{
+	product2 := product.Product{
 		Name:        "product 2",
 		Description: "product 2 description",
 		Vendor:      "vendor 2",
@@ -135,8 +136,8 @@ func TestProductFetching(t *testing.T) {
 	t.Run("invalid fetch", func(t *testing.T) {
 		p, err := productService.GetProductByID(5)
 
-		assert.Err(t, err, repository.ErrProductNotFound)
-		assert.Equal(t, p.String(), repository.Product{}.String())
+		assert.Err(t, err, models.ErrProductNotFound)
+		assert.Equal(t, p.String(), product.Product{}.String())
 	})
 
 	t.Run("fetch All", func(t *testing.T) {
@@ -150,10 +151,10 @@ func TestProductFetching(t *testing.T) {
 }
 
 func TestProductUpdate(t *testing.T) {
-	model := repository.NewModel()
+	model := models.NewModel()
 	service := newProductService(model)
 
-	product1 := repository.Product{
+	product1 := product.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -178,24 +179,24 @@ func TestProductUpdate(t *testing.T) {
 
 	t.Run("invalid update", func(t *testing.T) {
 		t.Run("not providing id", func(t *testing.T) {
-			product, err := service.UpdateProduct(UpdateProductParam{Name: &newName})
+			p, err := service.UpdateProduct(UpdateProductParam{Name: &newName})
 
-			assert.Err(t, err, repository.ErrProductNotFound)
-			assert.Equal(t, product.String(), repository.Product{}.String())
+			assert.Err(t, err, models.ErrProductNotFound)
+			assert.Equal(t, p.String(), product.Product{}.String())
 		})
 		t.Run("non existent product update", func(t *testing.T) {
-			product, err := service.UpdateProduct(UpdateProductParam{ID: 4, Name: &newName})
+			p, err := service.UpdateProduct(UpdateProductParam{ID: 4, Name: &newName})
 
-			assert.Err(t, err, repository.ErrProductNotFound)
-			assert.Equal(t, product.String(), repository.Product{}.String())
+			assert.Err(t, err, models.ErrProductNotFound)
+			assert.Equal(t, p.String(), product.Product{}.String())
 		})
 	})
 }
 
 func TestProductDeletion(t *testing.T) {
-	model := repository.NewModel()
+	model := models.NewModel()
 	service := newProductService(model)
-	product1 := repository.Product{
+	product1 := product.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -212,7 +213,7 @@ func TestProductDeletion(t *testing.T) {
 
 	t.Run("invalid deletion", func(t *testing.T) {
 		err := service.DeleteProduct(4)
-		assert.Err(t, err, repository.ErrProductNotFound)
+		assert.Err(t, err, models.ErrProductNotFound)
 	})
 
 	t.Run("valid deletion", func(t *testing.T) {
@@ -225,7 +226,7 @@ func TestProductDeletion(t *testing.T) {
 	})
 }
 
-func productToInsertParam(p repository.Product) InsertProductParam {
+func productToInsertParam(p product.Product) InsertProductParam {
 	return InsertProductParam{
 		Name:            p.Name,
 		Description:     p.Description,

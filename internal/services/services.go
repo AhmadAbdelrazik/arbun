@@ -1,6 +1,6 @@
 package services
 
-import "AhmadAbdelrazik/arbun/internal/repository"
+import "AhmadAbdelrazik/arbun/internal/models"
 
 type Services struct {
 	Products *ProductService
@@ -9,7 +9,7 @@ type Services struct {
 }
 
 func New() *Services {
-	models := repository.NewModel()
+	models := models.NewModel()
 	return &Services{
 		Products: newProductService(models),
 		Users:    newUserService(models),

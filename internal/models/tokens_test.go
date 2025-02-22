@@ -1,4 +1,4 @@
-package repository
+package models
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"

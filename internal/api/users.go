@@ -16,7 +16,7 @@ func (app *Application) PostSignup(w http.ResponseWriter, r *http.Request) {
 		UserType string `json:"type"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err := readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -43,7 +43,7 @@ func (app *Application) PostSignup(w http.ResponseWriter, r *http.Request) {
 
 	SetAuthTokenCookie(w, token)
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"message": "created successfully"}, nil)
+	err = writeJSON(w, http.StatusCreated, envelope{"message": "created successfully"}, nil)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 	}
@@ -57,7 +57,7 @@ func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
 		UserType string `json:"type"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err := readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -80,7 +80,7 @@ func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	SetAuthTokenCookie(w, token)
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 	}
@@ -89,7 +89,7 @@ func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
 func (app *Application) PostLogout(w http.ResponseWriter, r *http.Request) {
 	token, err := GetAuthToken(r)
 	if err != nil {
-		err = app.writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
+		err = writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 		}
@@ -97,13 +97,13 @@ func (app *Application) PostLogout(w http.ResponseWriter, r *http.Request) {
 
 	err = app.services.Users.Logout(token, services.TypeAdmin)
 	if err != nil {
-		err = app.writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
+		err = writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 		}
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
+	err = writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
