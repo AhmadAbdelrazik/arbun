@@ -1,6 +1,7 @@
 package services
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain/admin"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -19,7 +20,7 @@ func newAdminService(models *models.Model) *AdminService {
 
 func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	newAdmin := models.Admin{
+	newAdmin := admin.Admin{
 		FullName: fullName,
 		Email:    email,
 	}
@@ -97,26 +98,26 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (a *AdminService) GetAdminbyAuthToken(tokenText string) (models.Admin, error) {
-	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
+func (s *AdminService) GetAdminbyAuthToken(tokenText string) (admin.Admin, error) {
+	token, err := s.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):
-			return models.Admin{}, ErrInvalidAuthToken
+			return admin.Admin{}, ErrInvalidAuthToken
 		default:
-			return models.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return admin.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 
-	admin, err := a.models.Admins.GetAdminByID(token.UserID)
+	a, err := s.models.Admins.GetAdminByID(token.UserID)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrAdminNotFound):
-			return models.Admin{}, ErrInvalidAuthToken
+			return admin.Admin{}, ErrInvalidAuthToken
 		default:
-			return models.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return admin.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 
-	return admin, nil
+	return a, nil
 }

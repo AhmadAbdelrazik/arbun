@@ -1,6 +1,7 @@
 package services
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain/customer"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -19,7 +20,7 @@ func newCustomerService(models *models.Model) *CustomerService {
 
 func (a *CustomerService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	newCustomer := models.Customer{
+	newCustomer := customer.Customer{
 		FullName: fullName,
 		Email:    email,
 	}
@@ -97,26 +98,26 @@ func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Du
 	return result, nil
 }
 
-func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (models.Customer, error) {
+func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (customer.Customer, error) {
 	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):
-			return models.Customer{}, ErrInvalidAuthToken
+			return customer.Customer{}, ErrInvalidAuthToken
 		default:
-			return models.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return customer.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 
-	admin, err := a.models.Customers.GetCustomerByID(token.UserID)
+	c, err := a.models.Customers.GetCustomerByID(token.UserID)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrCustomerNotFound):
-			return models.Customer{}, ErrInvalidAuthToken
+			return customer.Customer{}, ErrInvalidAuthToken
 		default:
-			return models.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return customer.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 
-	return admin, nil
+	return c, nil
 }
