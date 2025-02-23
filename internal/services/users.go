@@ -70,7 +70,7 @@ func (a *UserService) Logout(token Token, userType string) error {
 	}
 }
 
-func (a *UserService) GetAuthToken(tokenText, userType string) (user.User, error) {
+func (a *UserService) GetAuthToken(tokenText, userType string) (user.IUser, error) {
 	switch userType {
 	case TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)

@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User interface {
+type IUser interface {
 }
 
 type Password struct {
