@@ -12,6 +12,7 @@ import (
 
 func TestCart(t *testing.T) {
 	ts := NewTestClient()
+	defer ts.Close()
 	customerCookie := InitializeCartTest(t, ts)
 	t.Run("GetEmptyCart", func(t *testing.T) {
 		GetEmptyCart(t, ts, customerCookie)
@@ -167,59 +168,4 @@ func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	customerCookie := AddCustomer(t, ts, customer1, "password1")
 
 	return customerCookie
-}
-
-func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password string) *http.Cookie {
-	t.Helper()
-
-	body := struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		FullName: c.FullName,
-		Email:    c.Email,
-		Password: password,
-		UserType: services.TypeCustomer,
-	}
-	res, err := ts.Post("/signup", body)
-	assert.Nil(t, err)
-	cookie := ts.GetCookie(res, AuthCookie)
-
-	assert.Nil(t, cookie.Valid())
-	assert.True(t, len(cookie.Value) == 26)
-
-	return cookie
-}
-
-func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *http.Cookie {
-	t.Helper()
-
-	body := struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		FullName: a.FullName,
-		Email:    a.Email,
-		Password: password,
-		UserType: services.TypeAdmin,
-	}
-	res, err := ts.Post("/signup", body)
-	assert.Nil(t, err)
-	cookie := ts.GetCookie(res, AuthCookie)
-
-	assert.Nil(t, cookie.Valid())
-	assert.True(t, len(cookie.Value) == 26)
-
-	return cookie
-}
-
-func AddProduct(t *testing.T, ts *TestClient, p product.Product, adminCookie *http.Cookie) {
-	t.Helper()
-	res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
-	assert.Nil(t, err)
-	assert.Equal(t, res.StatusCode, http.StatusCreated)
 }

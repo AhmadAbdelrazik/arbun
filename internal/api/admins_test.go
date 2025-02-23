@@ -8,10 +8,19 @@ import (
 	"testing"
 )
 
-func TestAdminSignup(t *testing.T) {
+func TestAdmin(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
+	t.Run("signup", func(t *testing.T) {
+		adminSignup(t, ts)
+	})
+	t.Run("login", func(t *testing.T) {
+		adminLogin(t, ts)
+	})
+}
+
+func adminSignup(t *testing.T, ts *TestClient) {
 	t.Run("valid signups", func(t *testing.T) {
 		tests := []struct {
 			FullName string `json:"full_name"`
@@ -34,7 +43,7 @@ func TestAdminSignup(t *testing.T) {
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("admin%d", i), func(t *testing.T) {
+			t.Run(fmt.Sprintf("admin%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/signup", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusCreated)
@@ -131,14 +140,10 @@ func TestAdminSignup(t *testing.T) {
 			assert.True(t, authCookie == nil)
 		})
 	})
+
 }
 
-func TestAdminLogin(t *testing.T) {
-	ts := NewTestClient()
-	defer ts.Close()
-
-	adminLoginTestSetup(ts)
-
+func adminLogin(t *testing.T, ts *TestClient) {
 	t.Run("valid logins", func(t *testing.T) {
 		tests := []struct {
 			Email    string `json:"email"`
@@ -158,7 +163,7 @@ func TestAdminLogin(t *testing.T) {
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("admin%d", i), func(t *testing.T) {
+			t.Run(fmt.Sprintf("admin%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/login", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusOK)
@@ -210,30 +215,4 @@ func TestAdminLogin(t *testing.T) {
 		})
 
 	})
-}
-
-func adminLoginTestSetup(ts *TestClient) {
-	bodies := []struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		{
-			FullName: "admin1",
-			Email:    "admin1@example.com",
-			Password: "password1",
-			UserType: services.TypeAdmin,
-		},
-		{
-			FullName: "admin2",
-			Email:    "admin2@example.com",
-			Password: "password2",
-			UserType: services.TypeAdmin,
-		},
-	}
-
-	for _, body := range bodies {
-		ts.Post("/signup", body)
-	}
 }

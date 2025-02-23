@@ -8,10 +8,19 @@ import (
 	"testing"
 )
 
-func TestCustomerSignup(t *testing.T) {
+func TestCustomer(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
+	t.Run("signup", func(t *testing.T) {
+		customerSignup(t, ts)
+	})
+	t.Run("login", func(t *testing.T) {
+		customerLogin(t, ts)
+	})
+}
+
+func customerSignup(t *testing.T, ts *TestClient) {
 	t.Run("valid signups", func(t *testing.T) {
 		tests := []struct {
 			FullName string `json:"full_name"`
@@ -34,7 +43,7 @@ func TestCustomerSignup(t *testing.T) {
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("customer%d", i), func(t *testing.T) {
+			t.Run(fmt.Sprintf("customer%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/signup", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusCreated)
@@ -131,14 +140,10 @@ func TestCustomerSignup(t *testing.T) {
 			assert.True(t, authCookie == nil)
 		})
 	})
+
 }
 
-func TestCustomerLogin(t *testing.T) {
-	ts := NewTestClient()
-	defer ts.Close()
-
-	customerLoginTestSetup(ts)
-
+func customerLogin(t *testing.T, ts *TestClient) {
 	t.Run("valid logins", func(t *testing.T) {
 		tests := []struct {
 			Email    string `json:"email"`
@@ -158,7 +163,7 @@ func TestCustomerLogin(t *testing.T) {
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("customer%d", i), func(t *testing.T) {
+			t.Run(fmt.Sprintf("customer%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/login", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusOK)
@@ -210,30 +215,4 @@ func TestCustomerLogin(t *testing.T) {
 		})
 
 	})
-}
-
-func customerLoginTestSetup(ts *TestClient) {
-	bodies := []struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		{
-			FullName: "customer1",
-			Email:    "customer1@example.com",
-			Password: "password1",
-			UserType: services.TypeCustomer,
-		},
-		{
-			FullName: "customer2",
-			Email:    "customer2@example.com",
-			Password: "password2",
-			UserType: services.TypeCustomer,
-		},
-	}
-
-	for _, body := range bodies {
-		ts.Post("/signup", body)
-	}
 }
