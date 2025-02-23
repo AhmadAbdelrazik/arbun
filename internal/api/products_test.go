@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
+	"AhmadAbdelrazik/arbun/internal/domain/admin"
 	"AhmadAbdelrazik/arbun/internal/domain/product"
-	"AhmadAbdelrazik/arbun/internal/services"
 	"fmt"
 	"net/http"
 	"testing"
@@ -20,281 +20,87 @@ func productToPostProductInput(p product.Product) postProductInput {
 	}
 }
 
-func TestPostProduct(t *testing.T) {
+func TestProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
-	authCookie := InitializeWithAdmin(ts)
+	a := admin.Admin{
+		Email:    "admin@gmail.com",
+		FullName: "admin",
+	}
 
-	t.Run("valid insertion", func(t *testing.T) {
-		tests := []struct {
-			testName string
-			Product  product.Product
-		}{
-			{
-				testName: "first product",
-				Product: product.Product{
-					ID:              1,
-					Name:            "product 1",
-					Description:     "description of product 1",
-					Vendor:          "vendor 1",
-					AvailableAmount: 5,
-					Version:         1,
-					Price:           23.99,
-					Properties: map[string]string{
-						"size": "12",
-					},
-				},
+	products := []product.Product{
+		{
+			ID:              1,
+			Name:            "product 1",
+			Description:     "description of product 1",
+			Vendor:          "vendor 1",
+			AvailableAmount: 5,
+			Version:         1,
+			Price:           23.99,
+			Properties: map[string]string{
+				"size": "12",
 			},
-			{
-				testName: "second product",
-				Product: product.Product{
-					ID:              2,
-					Name:            "product 2",
-					Description:     "description of product 2",
-					Vendor:          "vendor 1",
-					AvailableAmount: 8,
-					Price:           18.99,
-					Version:         1,
-					Properties: map[string]string{
-						"size": "14",
-					},
-				},
+		},
+		{
+			ID:              2,
+			Name:            "product 2",
+			Description:     "description of product 2",
+			Vendor:          "vendor 1",
+			AvailableAmount: 8,
+			Price:           18.99,
+			Version:         1,
+			Properties: map[string]string{
+				"size": "14",
 			},
-		}
+		},
+	}
 
-		for _, tt := range tests {
-			t.Run(tt.testName, func(t *testing.T) {
-				res, err := ts.PostWithCookies("/products", productToPostProductInput(tt.Product), authCookie)
-				assert.Nil(t, err)
+	adminCookie := AddAdmin(t, ts, a, "admin123")
 
-				var responseBody struct {
-					Product product.Product `json:"product"`
-				}
-
-				err = ts.ReadResponseBody(res, &responseBody)
-				assert.Nil(t, err)
-				assert.Equal(t, responseBody.Product.String(), tt.Product.String())
-				assert.Equal(t, res.StatusCode, http.StatusCreated)
-			})
-		}
+	t.Run("Post Products", func(t *testing.T) {
+		postProduct(t, ts, adminCookie, products)
+	})
+	t.Run("Get Products", func(t *testing.T) {
+		getProduct(t, ts, products)
+	})
+	t.Run("Patch Products", func(t *testing.T) {
+		patchProduct(t, ts, adminCookie, products)
+	})
+	t.Run("Delete Products", func(t *testing.T) {
+		deleteProduct(t, ts, adminCookie)
 	})
 
+}
+
+func postProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
+	t.Run("valid insertion", func(t *testing.T) {
+		validPost(t, ts, adminCookie, products)
+	})
 	t.Run("invalid insertion", func(t *testing.T) {
-		t.Run("duplicate product", func(t *testing.T) {
-			product := product.Product{
-				ID:              3,
-				Name:            "product 2",
-				Description:     "description of product 2",
-				Vendor:          "vendor 1",
-				AvailableAmount: 4,
-				Price:           23.99,
-				Version:         1,
-				Properties: map[string]string{
-					"size": "14",
-				},
-			}
-
-			var responseBody struct {
-				Error string `json:"error"`
-			}
-
-			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
-			assert.Nil(t, err)
-
-			err = ts.ReadResponseBody(res, &responseBody)
-			assert.Nil(t, err)
-
-			assert.Equal(t, res.StatusCode, http.StatusBadRequest)
-			assert.Equal(t, responseBody.Error, "product already exists")
-		})
-		t.Run("invalid product amount", func(t *testing.T) {
-			product := product.Product{
-				ID:              3,
-				Name:            "product 3",
-				Description:     "description of product 3",
-				Vendor:          "vendor 1",
-				AvailableAmount: 0,
-				Version:         1,
-				Price:           23.99,
-				Properties: map[string]string{
-					"size": "14",
-				},
-			}
-
-			var responseBody struct {
-				Error struct {
-					Amount string `json:"amount"`
-				} `json:"error"`
-			}
-
-			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
-			assert.Nil(t, err)
-
-			ts.ReadResponseBody(res, &responseBody)
-
-			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
-			assert.Equal(t, responseBody.Error.Amount, "must be more than 0")
-		})
-		t.Run("missing product name and description", func(t *testing.T) {
-			product := product.Product{
-				ID:              3,
-				Name:            "",
-				Description:     "",
-				Vendor:          "vendor 1",
-				Price:           23.99,
-				AvailableAmount: 0,
-				Version:         1,
-				Properties: map[string]string{
-					"size": "14",
-				},
-			}
-
-			var responseBody struct {
-				Error struct {
-					Name        string `json:"name"`
-					Description string `json:"description"`
-				} `json:"error"`
-			}
-
-			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
-			assert.Nil(t, err)
-
-			ts.ReadResponseBody(res, &responseBody)
-
-			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
-			assert.Equal(t, responseBody.Error.Name, "can't be empty")
-			assert.Equal(t, responseBody.Error.Description, "can't be empty")
-		})
-		t.Run("missing product name", func(t *testing.T) {
-			product := product.Product{
-				ID:              3,
-				Name:            "",
-				Description:     "description of product 3",
-				Vendor:          "vendor 1",
-				AvailableAmount: 0,
-				Version:         1,
-				Price:           23.99,
-				Properties: map[string]string{
-					"size": "14",
-				},
-			}
-
-			var responseBody struct {
-				Error struct {
-					Name string `json:"name"`
-				} `json:"error"`
-			}
-
-			res, err := ts.PostWithCookies("/products", productToPostProductInput(product), authCookie)
-			assert.Nil(t, err)
-
-			ts.ReadResponseBody(res, &responseBody)
-
-			assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
-			assert.Equal(t, responseBody.Error.Name, "can't be empty")
-		})
-		t.Run("invalid product", func(t *testing.T) {
-			product := product.Product{
-				ID:              3,
-				Name:            "product 2",
-				Description:     "description of product 2",
-				Vendor:          "vendor 2",
-				AvailableAmount: 4,
-				Version:         1,
-				Price:           23.99,
-				Properties: map[string]string{
-					"size": "14",
-				},
-			}
-
-			var responseBody struct {
-				Error string `json:"error"`
-			}
-
-			res, err := ts.PostWithCookies("/products", product, authCookie)
-			assert.Nil(t, err)
-
-			err = ts.ReadResponseBody(res, &responseBody)
-			assert.Nil(t, err)
-
-			assert.Equal(t, res.StatusCode, http.StatusBadRequest)
-			assert.Equal(t, responseBody.Error, `body contains unknown key "ID"`)
-		})
+		invalidPost(t, ts, adminCookie)
 	})
 }
 
-func TestGetProduct(t *testing.T) {
-	ts := NewTestClient()
-	defer ts.Close()
-
-	auth := InitializeWithAdmin(ts)
-
-	product1 := product.Product{
-		ID:          1,
-		Name:        "product 1",
-		Description: "description of product 1",
-		Vendor:      "vendor 1",
-		Price:       23.99,
-		Properties: map[string]string{
-			"size": "11",
-		},
-		Version:         1,
-		AvailableAmount: 4,
-	}
-	product2 := product.Product{
-		ID:          2,
-		Name:        "product 2",
-		Description: "description of product 2",
-		Vendor:      "vendor 1",
-		Price:       23.99,
-		Properties: map[string]string{
-			"size": "14",
-		},
-		Version:         1,
-		AvailableAmount: 6,
-	}
-
-	ts.PostWithCookies("/products", productToPostProductInput(product1), auth)
-	ts.PostWithCookies("/products", productToPostProductInput(product2), auth)
-
+func getProduct(t *testing.T, ts *TestClient, products []product.Product) {
 	t.Run("valid fetching", func(t *testing.T) {
-		tests := []struct {
-			testName string
-			ID       int64
-			product  product.Product
-		}{
-			{
-				testName: "product 1",
-				ID:       1,
-				product:  product1,
-			},
-			{
-				testName: "product 2",
-				ID:       2,
-				product:  product2,
-			},
-		}
-
-		for _, tt := range tests {
+		for i, p := range products {
 			var responseBody struct {
 				Product product.Product `json:"product"`
 			}
-			t.Run(tt.testName, func(t *testing.T) {
-				res, err := ts.Get(fmt.Sprintf("/products/%v", tt.ID))
+			t.Run(fmt.Sprintf("get Product %d", i), func(t *testing.T) {
+				res, err := ts.Get(fmt.Sprintf("/products/%v", p.ID))
 				assert.Nil(t, err)
 
 				err = ts.ReadResponseBody(res, &responseBody)
 				assert.Nil(t, err)
-				assert.Equal(t, responseBody.Product.String(), tt.product.String())
+				assert.Equal(t, responseBody.Product.String(), p.String())
 			})
 		}
 
 	})
-
 	t.Run("invalid fetching", func(t *testing.T) {
 		t.Run("no product", func(t *testing.T) {
-
 			res, err := ts.Get("/products/5")
 			assert.Nil(t, err)
 
@@ -306,7 +112,6 @@ func TestGetProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error, "the requested resource could not be found")
 		})
 		t.Run("bad value", func(t *testing.T) {
-
 			res, err := ts.Get("/products/x")
 			assert.Nil(t, err)
 
@@ -318,41 +123,12 @@ func TestGetProduct(t *testing.T) {
 			assert.Equal(t, responseBody.Error, "invalid id param")
 		})
 	})
+
 }
 
-func productToPatchProductInput(p product.Product) patchProductInput {
-	return patchProductInput{
-		Name:            &p.Name,
-		Description:     &p.Description,
-		Vendor:          &p.Vendor,
-		AvailableAmount: &p.AvailableAmount,
-		Properties:      p.Properties,
-	}
-}
-
-func TestPatchProduct(t *testing.T) {
-	ts := NewTestClient()
-	defer ts.Close()
-
-	authCookie := InitializeWithAdmin(ts)
-
-	product1 := product.Product{
-		ID:          1,
-		Name:        "product 1",
-		Description: "description of product 1",
-		Vendor:      "vendor 1",
-		Price:       23.99,
-		Properties: map[string]string{
-			"size": "11",
-		},
-		Version:         1,
-		AvailableAmount: 4,
-	}
-
-	ts.PostWithCookies("/products", productToPostProductInput(product1), authCookie)
-
+func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
 	t.Run("valid update", func(t *testing.T) {
-		newProduct := product1
+		newProduct := products[0]
 		newProduct.Name = "product 1 updated"
 		newProduct.Description = "product 1 description updated"
 		newProduct.AvailableAmount = 53
@@ -364,7 +140,7 @@ func TestPatchProduct(t *testing.T) {
 			AvailableAmount: &newProduct.AvailableAmount,
 		}
 
-		res, err := ts.PatchWithCookies("/products/1", reqBody, authCookie)
+		res, err := ts.PatchWithCookies("/products/1", reqBody, adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -376,7 +152,7 @@ func TestPatchProduct(t *testing.T) {
 	})
 
 	t.Run("invalid update", func(t *testing.T) {
-		newProduct := product1
+		newProduct := products[0]
 		newProduct.Name = "product 1 updated"
 		newProduct.Description = "product 1 description updated"
 		newProduct.AvailableAmount = 53
@@ -388,7 +164,7 @@ func TestPatchProduct(t *testing.T) {
 			AvailableAmount: &newProduct.AvailableAmount,
 		}
 
-		res, err := ts.PatchWithCookies("/products/3", reqBody, authCookie)
+		res, err := ts.PatchWithCookies("/products/3", reqBody, adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -400,29 +176,9 @@ func TestPatchProduct(t *testing.T) {
 	})
 }
 
-func TestDeleteProduct(t *testing.T) {
-	ts := NewTestClient()
-	defer ts.Close()
-
-	authCookie := InitializeWithAdmin(ts)
-
-	product1 := product.Product{
-		ID:          1,
-		Name:        "product 1",
-		Description: "description of product 1",
-		Vendor:      "vendor 1",
-		Price:       23.99,
-		Properties: map[string]string{
-			"size": "11",
-		},
-		Version:         1,
-		AvailableAmount: 4,
-	}
-
-	ts.PostWithCookies("/products", productToPostProductInput(product1), authCookie)
-
+func deleteProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 	t.Run("valid delete", func(t *testing.T) {
-		res, err := ts.DeleteWithCookies("/products/1", nil, authCookie)
+		res, err := ts.DeleteWithCookies("/products/1", nil, adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -434,7 +190,7 @@ func TestDeleteProduct(t *testing.T) {
 	})
 
 	t.Run("invalid deletion", func(t *testing.T) {
-		res, err := ts.DeleteWithCookies("/products/3", nil, authCookie)
+		res, err := ts.DeleteWithCookies("/products/3", nil, adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -446,21 +202,122 @@ func TestDeleteProduct(t *testing.T) {
 	})
 }
 
-func InitializeWithAdmin(ts *TestClient) *http.Cookie {
-	body := struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		FullName: "admin1",
-		Email:    "admin1@example.com",
-		Password: "password1",
-		UserType: services.TypeAdmin,
+func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
+	for i, p := range products {
+		t.Run(fmt.Sprintf("product%d", i), func(t *testing.T) {
+			res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+			assert.Nil(t, err)
+
+			var responseBody struct {
+				Product product.Product `json:"product"`
+			}
+
+			err = ts.ReadResponseBody(res, &responseBody)
+			assert.Nil(t, err)
+			assert.Equal(t, responseBody.Product.String(), p.String())
+			assert.Equal(t, res.StatusCode, http.StatusCreated)
+		})
 	}
+}
 
-	res, _ := ts.Post("/signup", body)
-	cookie := ts.GetCookie(res, AuthCookie)
+func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
+	mainProduct := product.Product{
+		ID:              3,
+		Name:            "product 2",
+		Description:     "description of product 2",
+		Vendor:          "vendor 1",
+		AvailableAmount: 4,
+		Price:           23.99,
+		Version:         1,
+		Properties: map[string]string{
+			"size": "14",
+		},
+	}
+	t.Run("duplicate product", func(t *testing.T) {
+		var responseBody struct {
+			Error string `json:"error"`
+		}
 
-	return cookie
+		res, err := ts.PostWithCookies("/products", productToPostProductInput(mainProduct), adminCookie)
+		assert.Nil(t, err)
+
+		err = ts.ReadResponseBody(res, &responseBody)
+		assert.Nil(t, err)
+
+		assert.Equal(t, res.StatusCode, http.StatusBadRequest)
+		assert.Equal(t, responseBody.Error, "product already exists")
+	})
+	t.Run("invalid product amount", func(t *testing.T) {
+		p := mainProduct
+		p.AvailableAmount = 0
+
+		var responseBody struct {
+			Error struct {
+				Amount string `json:"amount"`
+			} `json:"error"`
+		}
+
+		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		assert.Nil(t, err)
+
+		ts.ReadResponseBody(res, &responseBody)
+
+		assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+		assert.Equal(t, responseBody.Error.Amount, "must be more than 0")
+	})
+	t.Run("missing product name and description", func(t *testing.T) {
+		p := mainProduct
+		p.Name = ""
+		p.Description = ""
+
+		var responseBody struct {
+			Error struct {
+				Name        string `json:"name"`
+				Description string `json:"description"`
+			} `json:"error"`
+		}
+
+		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		assert.Nil(t, err)
+
+		ts.ReadResponseBody(res, &responseBody)
+
+		assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+		assert.Equal(t, responseBody.Error.Name, "can't be empty")
+		assert.Equal(t, responseBody.Error.Description, "can't be empty")
+	})
+	t.Run("missing product name", func(t *testing.T) {
+		p := mainProduct
+		p.Name = ""
+
+		var responseBody struct {
+			Error struct {
+				Name string `json:"name"`
+			} `json:"error"`
+		}
+
+		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		assert.Nil(t, err)
+
+		ts.ReadResponseBody(res, &responseBody)
+
+		assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
+		assert.Equal(t, responseBody.Error.Name, "can't be empty")
+	})
+	t.Run("invalid product", func(t *testing.T) {
+		p := mainProduct
+
+		var responseBody struct {
+			Error string `json:"error"`
+		}
+
+		res, err := ts.PostWithCookies("/products", p, adminCookie)
+		assert.Nil(t, err)
+
+		err = ts.ReadResponseBody(res, &responseBody)
+		assert.Nil(t, err)
+
+		assert.Equal(t, res.StatusCode, http.StatusBadRequest)
+		assert.Equal(t, responseBody.Error, `body contains unknown key "ID"`)
+	})
 }
