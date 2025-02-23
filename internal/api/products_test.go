@@ -13,10 +13,9 @@ func TestProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
-	a := admin.Admin{
-		Email:    "admin@gmail.com",
-		FullName: "admin",
-	}
+	var a admin.Admin
+	a.Email = "admin@gmail.com"
+	a.FullName = "admin"
 
 	products := []product.Product{
 		{

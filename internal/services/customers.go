@@ -21,10 +21,9 @@ func newCustomerService(models *models.Model) *CustomerService {
 
 func (a *CustomerService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	newCustomer := customer.Customer{
-		FullName: fullName,
-		Email:    email,
-	}
+	var newCustomer customer.Customer
+	newCustomer.FullName = fullName
+	newCustomer.Email = email
 	newCustomer.Password.Set(password)
 
 	v := newCustomer.Validate()

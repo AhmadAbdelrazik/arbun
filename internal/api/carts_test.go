@@ -129,10 +129,10 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 }
 
 func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
-	admin1 := admin.Admin{
-		FullName: "admin1",
-		Email:    "admin1@example.com",
-	}
+	var admin1 admin.Admin
+	admin1.FullName = "admin1"
+	admin1.Email = "admin1@example.com"
+
 	adminCookie := AddAdmin(t, ts, admin1, "password1")
 
 	product1 := product.Product{
@@ -161,10 +161,9 @@ func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	AddProduct(t, ts, product2, adminCookie)
 	AddProduct(t, ts, product3, adminCookie)
 
-	customer1 := customer.Customer{
-		FullName: "customer1",
-		Email:    "customer1@example.com",
-	}
+	var customer1 customer.Customer
+	customer1.FullName = "customer1"
+	customer1.Email = "customer1@example.com"
 	customerCookie := AddCustomer(t, ts, customer1, "password1")
 
 	return customerCookie
