@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"AhmadAbdelrazik/arbun/internal/validator"
 	"errors"
@@ -95,7 +96,7 @@ func (app *Application) PostLogout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = app.services.Users.Logout(token, services.TypeAdmin)
+	err = app.services.Users.Logout(token, user.TypeAdmin)
 	if err != nil {
 		err = writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)
 		if err != nil {

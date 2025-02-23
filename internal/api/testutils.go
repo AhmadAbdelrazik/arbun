@@ -5,7 +5,7 @@ import (
 	"AhmadAbdelrazik/arbun/internal/domain/admin"
 	"AhmadAbdelrazik/arbun/internal/domain/customer"
 	"AhmadAbdelrazik/arbun/internal/domain/product"
-	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -37,7 +37,7 @@ func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password str
 		FullName: c.FullName,
 		Email:    c.Email,
 		Password: password,
-		UserType: services.TypeCustomer,
+		UserType: user.TypeCustomer,
 	}
 	res, err := ts.Post("/signup", body)
 	assert.Nil(t, err)
@@ -61,7 +61,7 @@ func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *htt
 		FullName: a.FullName,
 		Email:    a.Email,
 		Password: password,
-		UserType: services.TypeAdmin,
+		UserType: user.TypeAdmin,
 	}
 	res, err := ts.Post("/signup", body)
 	assert.Nil(t, err)

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"fmt"
 	"net/http"
 	"testing"
@@ -32,13 +32,13 @@ func customerSignup(t *testing.T, ts *TestClient) {
 				FullName: "customer1",
 				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			},
 			{
 				FullName: "customer2",
 				Email:    "customer2@example.com",
 				Password: "password2",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			},
 		}
 
@@ -67,7 +67,7 @@ func customerSignup(t *testing.T, ts *TestClient) {
 				FullName: "",
 				Email:    "customer4@example.com",
 				Password: "password4",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -97,7 +97,7 @@ func customerSignup(t *testing.T, ts *TestClient) {
 				FullName: "customer1",
 				Email:    "",
 				Password: "",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -129,7 +129,7 @@ func customerSignup(t *testing.T, ts *TestClient) {
 				FullName: "customer1",
 				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -153,12 +153,12 @@ func customerLogin(t *testing.T, ts *TestClient) {
 			{
 				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			},
 			{
 				Email:    "customer2@example.com",
 				Password: "password2",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			},
 		}
 
@@ -185,7 +185,7 @@ func customerLogin(t *testing.T, ts *TestClient) {
 			}{
 				Email:    "customer3@example.com",
 				Password: "password1",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			}
 
 			res, err := ts.Post("/login", responseBody)
@@ -203,7 +203,7 @@ func customerLogin(t *testing.T, ts *TestClient) {
 			}{
 				Email:    "customer1@example.com",
 				Password: "password2",
-				UserType: services.TypeCustomer,
+				UserType: user.TypeCustomer,
 			}
 
 			res, err := ts.Post("/login", responseBody)

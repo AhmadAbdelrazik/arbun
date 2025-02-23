@@ -7,6 +7,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	TypeAdmin    = "admin"
+	TypeCustomer = "customer"
+)
+
 type IUser interface {
 }
 

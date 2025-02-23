@@ -25,11 +25,6 @@ type Token struct {
 	ExpiryTime time.Time
 }
 
-const (
-	TypeAdmin    = "admin"
-	TypeCustomer = "customer"
-)
-
 func newUserService(models *models.Model) *UserService {
 	return &UserService{
 		admins:    newAdminService(models),
@@ -39,9 +34,9 @@ func newUserService(models *models.Model) *UserService {
 
 func (a *UserService) Signup(fullName, email, password, userType string) (Token, error) {
 	switch userType {
-	case TypeAdmin:
+	case user.TypeAdmin:
 		return a.admins.Signup(fullName, email, password)
-	case TypeCustomer:
+	case user.TypeCustomer:
 		return a.customers.Signup(fullName, email, password)
 	default:
 		return Token{}, fmt.Errorf("signup: %w", ErrInvalidUserType)
@@ -50,9 +45,9 @@ func (a *UserService) Signup(fullName, email, password, userType string) (Token,
 
 func (a *UserService) Login(email, password, userType string) (Token, error) {
 	switch userType {
-	case TypeAdmin:
+	case user.TypeAdmin:
 		return a.admins.Login(email, password)
-	case TypeCustomer:
+	case user.TypeCustomer:
 		return a.customers.Login(email, password)
 	default:
 		return Token{}, fmt.Errorf("login: %w", ErrInvalidUserType)
@@ -61,9 +56,9 @@ func (a *UserService) Login(email, password, userType string) (Token, error) {
 
 func (a *UserService) Logout(token Token, userType string) error {
 	switch userType {
-	case TypeAdmin:
+	case user.TypeAdmin:
 		return a.admins.Logout(token)
-	case TypeCustomer:
+	case user.TypeCustomer:
 		return a.customers.Logout(token)
 	default:
 		return fmt.Errorf("logout: %w", ErrInvalidUserType)
@@ -72,9 +67,9 @@ func (a *UserService) Logout(token Token, userType string) error {
 
 func (a *UserService) GetAuthToken(tokenText, userType string) (user.IUser, error) {
 	switch userType {
-	case TypeAdmin:
+	case user.TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)
-	case TypeCustomer:
+	case user.TypeCustomer:
 		return a.customers.GetCustomerbyAuthToken(tokenText)
 	default:
 		return nil, fmt.Errorf("getByToken: %w", ErrInvalidUserType)

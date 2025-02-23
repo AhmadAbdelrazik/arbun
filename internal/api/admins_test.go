@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"fmt"
 	"net/http"
 	"testing"
@@ -32,13 +32,13 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				FullName: "admin1",
 				Email:    "admin1@example.com",
 				Password: "password1",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			},
 			{
 				FullName: "admin2",
 				Email:    "admin2@example.com",
 				Password: "password2",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			},
 		}
 
@@ -67,7 +67,7 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				FullName: "",
 				Email:    "admin4@example.com",
 				Password: "password4",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -97,7 +97,7 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				FullName: "admin1",
 				Email:    "",
 				Password: "",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -129,7 +129,7 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				FullName: "admin1",
 				Email:    "admin1@example.com",
 				Password: "password1",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -153,12 +153,12 @@ func adminLogin(t *testing.T, ts *TestClient) {
 			{
 				Email:    "admin1@example.com",
 				Password: "password1",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			},
 			{
 				Email:    "admin2@example.com",
 				Password: "password2",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			},
 		}
 
@@ -185,7 +185,7 @@ func adminLogin(t *testing.T, ts *TestClient) {
 			}{
 				Email:    "admin3@example.com",
 				Password: "password1",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			}
 
 			res, err := ts.Post("/login", responseBody)
@@ -203,7 +203,7 @@ func adminLogin(t *testing.T, ts *TestClient) {
 			}{
 				Email:    "admin1@example.com",
 				Password: "password2",
-				UserType: services.TypeAdmin,
+				UserType: user.TypeAdmin,
 			}
 
 			res, err := ts.Post("/login", responseBody)
