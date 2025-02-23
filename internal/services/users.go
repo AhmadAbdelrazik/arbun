@@ -1,6 +1,7 @@
 package services
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -69,7 +70,7 @@ func (a *UserService) Logout(token Token, userType string) error {
 	}
 }
 
-func (a *UserService) GetAuthToken(tokenText, userType string) (models.User, error) {
+func (a *UserService) GetAuthToken(tokenText, userType string) (user.User, error) {
 	switch userType {
 	case TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)

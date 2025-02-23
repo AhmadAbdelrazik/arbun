@@ -9,17 +9,6 @@ import (
 	"testing"
 )
 
-func productToPostProductInput(p product.Product) postProductInput {
-	return postProductInput{
-		Name:        p.Name,
-		Description: p.Description,
-		Vendor:      p.Vendor,
-		Amount:      p.AvailableAmount,
-		Properties:  p.Properties,
-		Price:       p.Price,
-	}
-}
-
 func TestProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
@@ -205,7 +194,7 @@ func deleteProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
 	for i, p := range products {
 		t.Run(fmt.Sprintf("product%d", i), func(t *testing.T) {
-			res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+			res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 			assert.Nil(t, err)
 
 			var responseBody struct {
@@ -238,7 +227,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			Error string `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", productToPostProductInput(mainProduct), adminCookie)
+		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(mainProduct), adminCookie)
 		assert.Nil(t, err)
 
 		err = ts.ReadResponseBody(res, &responseBody)
@@ -257,7 +246,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 		assert.Nil(t, err)
 
 		ts.ReadResponseBody(res, &responseBody)
@@ -277,7 +266,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 		assert.Nil(t, err)
 
 		ts.ReadResponseBody(res, &responseBody)
@@ -296,7 +285,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 		assert.Nil(t, err)
 
 		ts.ReadResponseBody(res, &responseBody)

@@ -14,6 +14,17 @@ import (
 	"testing"
 )
 
+func ProductToPostProductInput(p product.Product) postProductInput {
+	return postProductInput{
+		Name:        p.Name,
+		Description: p.Description,
+		Vendor:      p.Vendor,
+		Amount:      p.AvailableAmount,
+		Properties:  p.Properties,
+		Price:       p.Price,
+	}
+}
+
 func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password string) *http.Cookie {
 	t.Helper()
 
@@ -64,7 +75,7 @@ func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *htt
 
 func AddProduct(t *testing.T, ts *TestClient, p product.Product, adminCookie *http.Cookie) {
 	t.Helper()
-	res, err := ts.PostWithCookies("/products", productToPostProductInput(p), adminCookie)
+	res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, res.StatusCode, http.StatusCreated)
 }

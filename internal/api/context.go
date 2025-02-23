@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/models"
+	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"context"
 	"net/http"
 )
@@ -12,16 +12,16 @@ const (
 	UserContext ContextKey = "user"
 )
 
-func (app *Application) contextSetUser(r *http.Request, user models.User) *http.Request {
+func (app *Application) contextSetUser(r *http.Request, user user.User) *http.Request {
 	ctx := context.WithValue(r.Context(), UserContext, user)
 	return r.WithContext(ctx)
 }
 
-func (app *Application) contextGetUser(r *http.Request) models.User {
-	user := r.Context().Value(UserContext)
-	if user == nil {
+func (app *Application) contextGetUser(r *http.Request) user.User {
+	u := r.Context().Value(UserContext)
+	if u == nil {
 		panic("missing value in request context")
 	}
 
-	return user.(models.User)
+	return u.(user.User)
 }
