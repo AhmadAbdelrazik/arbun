@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/user"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"fmt"
@@ -67,8 +67,8 @@ func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
 			app.authenticationErrorResponse(w, r)
 			return
 		}
-		// 2. register admin in the request context
-		user, err := app.services.Users.GetAuthToken(token.Plaintext, user.TypeAdmin)
+		// 2. register admin in the request contexdomain
+		user, err := app.services.Users.GetAuthToken(token.Plaintext, domain.TypeAdmin)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):

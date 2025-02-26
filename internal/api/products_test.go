@@ -2,8 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/domain/admin"
-	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"fmt"
 	"net/http"
 	"testing"
@@ -13,11 +12,11 @@ func TestProduct(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
-	var a admin.Admin
+	var a domain.Admin
 	a.Email = "admin@gmail.com"
 	a.FullName = "admin"
 
-	products := []product.Product{
+	products := []domain.Product{
 		{
 			ID:              1,
 			Name:            "product 1",
@@ -61,7 +60,7 @@ func TestProduct(t *testing.T) {
 
 }
 
-func postProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
+func postProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []domain.Product) {
 	t.Run("valid insertion", func(t *testing.T) {
 		validPost(t, ts, adminCookie, products)
 	})
@@ -70,11 +69,11 @@ func postProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, product
 	})
 }
 
-func getProduct(t *testing.T, ts *TestClient, products []product.Product) {
+func getProduct(t *testing.T, ts *TestClient, products []domain.Product) {
 	t.Run("valid fetching", func(t *testing.T) {
 		for i, p := range products {
 			var responseBody struct {
-				Product product.Product `json:"product"`
+				Product domain.Product `json:"product"`
 			}
 			t.Run(fmt.Sprintf("get Product %d", i), func(t *testing.T) {
 				res, err := ts.Get(fmt.Sprintf("/products/%v", p.ID))
@@ -114,7 +113,7 @@ func getProduct(t *testing.T, ts *TestClient, products []product.Product) {
 
 }
 
-func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
+func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []domain.Product) {
 	t.Run("valid update", func(t *testing.T) {
 		newProduct := products[0]
 		newProduct.Name = "product 1 updated"
@@ -132,7 +131,7 @@ func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, produc
 		assert.Nil(t, err)
 
 		var responseBody struct {
-			Product product.Product `json:"product"`
+			Product domain.Product `json:"product"`
 		}
 		err = ts.ReadResponseBody(res, &responseBody)
 		assert.Nil(t, err)
@@ -190,14 +189,14 @@ func deleteProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 	})
 }
 
-func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []product.Product) {
+func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []domain.Product) {
 	for i, p := range products {
 		t.Run(fmt.Sprintf("product%d", i), func(t *testing.T) {
 			res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 			assert.Nil(t, err)
 
 			var responseBody struct {
-				Product product.Product `json:"product"`
+				Product domain.Product `json:"product"`
 			}
 
 			err = ts.ReadResponseBody(res, &responseBody)
@@ -209,7 +208,7 @@ func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products 
 }
 
 func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
-	mainProduct := product.Product{
+	mainProduct := domain.Product{
 		ID:              3,
 		Name:            "product 2",
 		Description:     "description of product 2",

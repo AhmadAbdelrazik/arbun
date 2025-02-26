@@ -2,7 +2,7 @@ package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"testing"
 )
@@ -14,11 +14,11 @@ func TestProductInsertion(t *testing.T) {
 
 		tests := []struct {
 			TestName string
-			product  product.Product
+			product  domain.Product
 		}{
 			{
 				TestName: "product 1",
-				product: product.Product{
+				product: domain.Product{
 					Name:        "product 1",
 					ID:          1,
 					Description: "product 1 description",
@@ -33,7 +33,7 @@ func TestProductInsertion(t *testing.T) {
 			},
 			{
 				TestName: "product 2",
-				product: product.Product{
+				product: domain.Product{
 					Name:        "product 2",
 					ID:          2,
 					Description: "product 2 description",
@@ -62,7 +62,7 @@ func TestProductInsertion(t *testing.T) {
 	t.Run("invalid insertion", func(t *testing.T) {
 		model := models.NewModel()
 		productService := newProductService(model)
-		firstProduct := product.Product{
+		firstProduct := domain.Product{
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
@@ -74,7 +74,7 @@ func TestProductInsertion(t *testing.T) {
 		}
 		productService.InsertProduct(productToInsertParam(firstProduct))
 
-		invalidProduct := product.Product{
+		invalidProduct := domain.Product{
 			Name:        "product 1",
 			Description: "product 1 description",
 			Vendor:      "vendor 1",
@@ -88,7 +88,7 @@ func TestProductInsertion(t *testing.T) {
 		p, err := productService.InsertProduct(productToInsertParam(invalidProduct))
 
 		assert.Err(t, err, models.ErrDuplicateProduct)
-		assert.Equal(t, p.String(), product.Product{}.String())
+		assert.Equal(t, p.String(), domain.Product{}.String())
 
 	})
 }
@@ -97,7 +97,7 @@ func TestProductFetching(t *testing.T) {
 	model := models.NewModel()
 	productService := newProductService(model)
 
-	product1 := product.Product{
+	product1 := domain.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -110,7 +110,7 @@ func TestProductFetching(t *testing.T) {
 		ID:              1,
 	}
 
-	product2 := product.Product{
+	product2 := domain.Product{
 		Name:        "product 2",
 		Description: "product 2 description",
 		Vendor:      "vendor 2",
@@ -137,7 +137,7 @@ func TestProductFetching(t *testing.T) {
 		p, err := productService.GetProductByID(5)
 
 		assert.Err(t, err, models.ErrProductNotFound)
-		assert.Equal(t, p.String(), product.Product{}.String())
+		assert.Equal(t, p.String(), domain.Product{}.String())
 	})
 
 	t.Run("fetch All", func(t *testing.T) {
@@ -154,7 +154,7 @@ func TestProductUpdate(t *testing.T) {
 	model := models.NewModel()
 	service := newProductService(model)
 
-	product1 := product.Product{
+	product1 := domain.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -182,13 +182,13 @@ func TestProductUpdate(t *testing.T) {
 			p, err := service.UpdateProduct(UpdateProductParam{Name: &newName})
 
 			assert.Err(t, err, models.ErrProductNotFound)
-			assert.Equal(t, p.String(), product.Product{}.String())
+			assert.Equal(t, p.String(), domain.Product{}.String())
 		})
 		t.Run("non existent product update", func(t *testing.T) {
 			p, err := service.UpdateProduct(UpdateProductParam{ID: 4, Name: &newName})
 
 			assert.Err(t, err, models.ErrProductNotFound)
-			assert.Equal(t, p.String(), product.Product{}.String())
+			assert.Equal(t, p.String(), domain.Product{}.String())
 		})
 	})
 }
@@ -196,7 +196,7 @@ func TestProductUpdate(t *testing.T) {
 func TestProductDeletion(t *testing.T) {
 	model := models.NewModel()
 	service := newProductService(model)
-	product1 := product.Product{
+	product1 := domain.Product{
 		Name:        "product 1",
 		Description: "product 1 description",
 		Vendor:      "vendor 1",
@@ -226,7 +226,7 @@ func TestProductDeletion(t *testing.T) {
 	})
 }
 
-func productToInsertParam(p product.Product) InsertProductParam {
+func productToInsertParam(p domain.Product) InsertProductParam {
 	return InsertProductParam{
 		Name:            p.Name,
 		Description:     p.Description,

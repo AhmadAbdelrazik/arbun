@@ -1,7 +1,7 @@
 package models
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"errors"
 	"slices"
 )
@@ -13,21 +13,21 @@ var (
 )
 
 type ProductModel struct {
-	products  []product.Product
+	products  []domain.Product
 	idCounter int64
 }
 
 func newProductModel() *ProductModel {
 	return &ProductModel{
-		products:  make([]product.Product, 0),
+		products:  make([]domain.Product, 0),
 		idCounter: 1,
 	}
 }
 
-func (m *ProductModel) InsertProduct(p product.Product) (product.Product, error) {
+func (m *ProductModel) InsertProduct(p domain.Product) (domain.Product, error) {
 	for _, pp := range m.products {
 		if pp.Name == p.Name && pp.Vendor == p.Vendor {
-			return product.Product{}, ErrDuplicateProduct
+			return domain.Product{}, ErrDuplicateProduct
 		}
 	}
 
@@ -40,27 +40,27 @@ func (m *ProductModel) InsertProduct(p product.Product) (product.Product, error)
 	return p, nil
 }
 
-func (m *ProductModel) GetProductByID(id int64) (product.Product, error) {
+func (m *ProductModel) GetProductByID(id int64) (domain.Product, error) {
 	for _, pp := range m.products {
 		if pp.ID == id {
 			return pp, nil
 		}
 	}
 
-	return product.Product{}, ErrProductNotFound
+	return domain.Product{}, ErrProductNotFound
 }
 
-func (m *ProductModel) GetAllProducts() ([]product.Product, error) {
+func (m *ProductModel) GetAllProducts() ([]domain.Product, error) {
 	return m.products, nil
 }
 
-func (m *ProductModel) UpdateProduct(p product.Product) (product.Product, error) {
-	var result product.Product
+func (m *ProductModel) UpdateProduct(p domain.Product) (domain.Product, error) {
+	var result domain.Product
 
 	for i, pp := range m.products {
 		if pp.ID == p.ID {
 			if pp.Version != p.Version {
-				return product.Product{}, ErrEditConflict
+				return domain.Product{}, ErrEditConflict
 			}
 			m.products[i] = p
 			m.products[i].Version++

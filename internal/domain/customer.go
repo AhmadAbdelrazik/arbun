@@ -1,12 +1,11 @@
-package customer
+package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"AhmadAbdelrazik/arbun/internal/validator"
 )
 
 type Customer struct {
-	user.User
+	User
 }
 
 func (c Customer) Validate() *validator.Validator {

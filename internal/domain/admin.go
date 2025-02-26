@@ -1,12 +1,11 @@
-package admin
+package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/user"
 	"AhmadAbdelrazik/arbun/internal/validator"
 )
 
 type Admin struct {
-	user.User
+	User
 }
 
 func (a Admin) Validate() *validator.Validator {

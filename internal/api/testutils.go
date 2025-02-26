@@ -2,10 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/domain/admin"
-	"AhmadAbdelrazik/arbun/internal/domain/customer"
-	"AhmadAbdelrazik/arbun/internal/domain/product"
-	"AhmadAbdelrazik/arbun/internal/domain/user"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -14,7 +11,7 @@ import (
 	"testing"
 )
 
-func ProductToPostProductInput(p product.Product) postProductInput {
+func ProductToPostProductInput(p domain.Product) postProductInput {
 	return postProductInput{
 		Name:        p.Name,
 		Description: p.Description,
@@ -25,7 +22,7 @@ func ProductToPostProductInput(p product.Product) postProductInput {
 	}
 }
 
-func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password string) *http.Cookie {
+func AddCustomer(t *testing.T, ts *TestClient, c domain.Customer, password string) *http.Cookie {
 	t.Helper()
 
 	body := struct {
@@ -37,7 +34,7 @@ func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password str
 		FullName: c.FullName,
 		Email:    c.Email,
 		Password: password,
-		UserType: user.TypeCustomer,
+		UserType: domain.TypeCustomer,
 	}
 	res, err := ts.Post("/signup", body)
 	assert.Nil(t, err)
@@ -49,7 +46,7 @@ func AddCustomer(t *testing.T, ts *TestClient, c customer.Customer, password str
 	return cookie
 }
 
-func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *http.Cookie {
+func AddAdmin(t *testing.T, ts *TestClient, a domain.Admin, password string) *http.Cookie {
 	t.Helper()
 
 	body := struct {
@@ -61,7 +58,7 @@ func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *htt
 		FullName: a.FullName,
 		Email:    a.Email,
 		Password: password,
-		UserType: user.TypeAdmin,
+		UserType: domain.TypeAdmin,
 	}
 	res, err := ts.Post("/signup", body)
 	assert.Nil(t, err)
@@ -73,7 +70,7 @@ func AddAdmin(t *testing.T, ts *TestClient, a admin.Admin, password string) *htt
 	return cookie
 }
 
-func AddProduct(t *testing.T, ts *TestClient, p product.Product, adminCookie *http.Cookie) {
+func AddProduct(t *testing.T, ts *TestClient, p domain.Product, adminCookie *http.Cookie) {
 	t.Helper()
 	res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
 	assert.Nil(t, err)

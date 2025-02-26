@@ -1,7 +1,7 @@
 package models
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/admin"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"errors"
 )
 
@@ -11,21 +11,21 @@ var (
 )
 
 type AdminModel struct {
-	admins    []admin.Admin
+	admins    []domain.Admin
 	idCounter int64
 }
 
 func newAdminModel() *AdminModel {
 	return &AdminModel{
-		admins:    make([]admin.Admin, 0),
+		admins:    make([]domain.Admin, 0),
 		idCounter: 1,
 	}
 }
 
-func (m *AdminModel) InsertAdmin(a admin.Admin) (admin.Admin, error) {
+func (m *AdminModel) InsertAdmin(a domain.Admin) (domain.Admin, error) {
 	for _, aa := range m.admins {
 		if aa.Email == a.Email {
-			return admin.Admin{}, ErrDuplicateAdmin
+			return domain.Admin{}, ErrDuplicateAdmin
 		}
 	}
 
@@ -37,35 +37,35 @@ func (m *AdminModel) InsertAdmin(a admin.Admin) (admin.Admin, error) {
 	return a, nil
 }
 
-func (m *AdminModel) GetAdminByEmail(email string) (admin.Admin, error) {
+func (m *AdminModel) GetAdminByEmail(email string) (domain.Admin, error) {
 	for _, aa := range m.admins {
 		if aa.Email == email {
 			return aa, nil
 		}
 	}
 
-	return admin.Admin{}, ErrAdminNotFound
+	return domain.Admin{}, ErrAdminNotFound
 }
 
-func (m *AdminModel) GetAdminByID(id int64) (admin.Admin, error) {
+func (m *AdminModel) GetAdminByID(id int64) (domain.Admin, error) {
 	for _, aa := range m.admins {
 		if aa.ID == id {
 			return aa, nil
 		}
 	}
 
-	return admin.Admin{}, ErrAdminNotFound
+	return domain.Admin{}, ErrAdminNotFound
 }
 
-func (m *AdminModel) GetAllAdmins() ([]admin.Admin, error) {
+func (m *AdminModel) GetAllAdmins() ([]domain.Admin, error) {
 	return m.admins, nil
 }
 
-func (m *AdminModel) UpdateAdmin(a admin.Admin) (admin.Admin, error) {
+func (m *AdminModel) UpdateAdmin(a domain.Admin) (domain.Admin, error) {
 	for i, aa := range m.admins {
 		if aa.ID == a.ID {
 			if aa.Version != a.Version {
-				return admin.Admin{}, ErrEditConflict
+				return domain.Admin{}, ErrEditConflict
 			}
 
 			a.Version = aa.Version + 1
@@ -74,7 +74,7 @@ func (m *AdminModel) UpdateAdmin(a admin.Admin) (admin.Admin, error) {
 		}
 	}
 
-	return admin.Admin{}, ErrAdminNotFound
+	return domain.Admin{}, ErrAdminNotFound
 }
 
 func (m *AdminModel) DeleteAdmin(id int64) error {

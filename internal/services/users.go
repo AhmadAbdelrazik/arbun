@@ -1,7 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/user"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -34,9 +34,9 @@ func newUserService(models *models.Model) *UserService {
 
 func (a *UserService) Signup(fullName, email, password, userType string) (Token, error) {
 	switch userType {
-	case user.TypeAdmin:
+	case domain.TypeAdmin:
 		return a.admins.Signup(fullName, email, password)
-	case user.TypeCustomer:
+	case domain.TypeCustomer:
 		return a.customers.Signup(fullName, email, password)
 	default:
 		return Token{}, fmt.Errorf("signup: %w", ErrInvalidUserType)
@@ -45,9 +45,9 @@ func (a *UserService) Signup(fullName, email, password, userType string) (Token,
 
 func (a *UserService) Login(email, password, userType string) (Token, error) {
 	switch userType {
-	case user.TypeAdmin:
+	case domain.TypeAdmin:
 		return a.admins.Login(email, password)
-	case user.TypeCustomer:
+	case domain.TypeCustomer:
 		return a.customers.Login(email, password)
 	default:
 		return Token{}, fmt.Errorf("login: %w", ErrInvalidUserType)
@@ -56,20 +56,20 @@ func (a *UserService) Login(email, password, userType string) (Token, error) {
 
 func (a *UserService) Logout(token Token, userType string) error {
 	switch userType {
-	case user.TypeAdmin:
+	case domain.TypeAdmin:
 		return a.admins.Logout(token)
-	case user.TypeCustomer:
+	case domain.TypeCustomer:
 		return a.customers.Logout(token)
 	default:
 		return fmt.Errorf("logout: %w", ErrInvalidUserType)
 	}
 }
 
-func (a *UserService) GetAuthToken(tokenText, userType string) (user.IUser, error) {
+func (a *UserService) GetAuthToken(tokenText, userType string) (domain.IUser, error) {
 	switch userType {
-	case user.TypeAdmin:
+	case domain.TypeAdmin:
 		return a.admins.GetAdminbyAuthToken(tokenText)
-	case user.TypeCustomer:
+	case domain.TypeCustomer:
 		return a.customers.GetCustomerbyAuthToken(tokenText)
 	default:
 		return nil, fmt.Errorf("getByToken: %w", ErrInvalidUserType)

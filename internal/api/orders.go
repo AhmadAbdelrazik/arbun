@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/customer"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"net/http"
 )
 
 func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(customer.Customer)
+	customer := app.contextGetUser(r).(domain.Customer)
 	var input struct {
 		DeliveryAddress string
 		MobilePhone     string
@@ -20,10 +20,9 @@ func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(customer.Customer)
+	// customer := app.contextGetUser(r).(domain.Customer)
 }
 
 func (app *Application) GetAllOrders(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(customer.Customer)
-
+	// customer := app.contextGetUser(r).(domain.Customer)
 }

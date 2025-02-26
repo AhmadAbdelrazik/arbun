@@ -1,8 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/customer"
-	"AhmadAbdelrazik/arbun/internal/domain/token"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -21,7 +20,7 @@ func newCustomerService(models *models.Model) *CustomerService {
 
 func (a *CustomerService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	var newCustomer customer.Customer
+	var newCustomer domain.Customer
 	newCustomer.FullName = fullName
 	newCustomer.Email = email
 	newCustomer.Password.Set(password)
@@ -84,7 +83,7 @@ func (a *CustomerService) Logout(token Token) error {
 }
 
 func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := token.Generate(adminId, scope, ttl)
+	token, err := domain.Generate(adminId, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,14 +97,14 @@ func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Du
 	return result, nil
 }
 
-func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (customer.Customer, error) {
+func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (domain.Customer, error) {
 	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):
-			return customer.Customer{}, ErrInvalidAuthToken
+			return domain.Customer{}, ErrInvalidAuthToken
 		default:
-			return customer.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return domain.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 
@@ -113,9 +112,9 @@ func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (customer.Cus
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrCustomerNotFound):
-			return customer.Customer{}, ErrInvalidAuthToken
+			return domain.Customer{}, ErrInvalidAuthToken
 		default:
-			return customer.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
+			return domain.Customer{}, fmt.Errorf("getCustomerByToken: %w", err)
 		}
 	}
 

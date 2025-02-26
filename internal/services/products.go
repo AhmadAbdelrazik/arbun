@@ -1,7 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -32,8 +32,8 @@ type InsertProductParam struct {
 	AvailableAmount int
 }
 
-func (s *ProductService) InsertProduct(param InsertProductParam) (product.Product, error) {
-	p := product.Product{
+func (s *ProductService) InsertProduct(param InsertProductParam) (domain.Product, error) {
+	p := domain.Product{
 		Name:            param.Name,
 		Description:     param.Description,
 		Properties:      param.Properties,
@@ -44,39 +44,39 @@ func (s *ProductService) InsertProduct(param InsertProductParam) (product.Produc
 
 	v := p.Validate()
 	if v != nil {
-		return product.Product{}, v
+		return domain.Product{}, v
 	}
 
 	newProduct, err := s.models.Products.InsertProduct(p)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrDuplicateProduct):
-			return product.Product{}, ErrDuplicateProduct
+			return domain.Product{}, ErrDuplicateProduct
 		default:
-			return product.Product{}, fmt.Errorf("insert product: %w", err)
+			return domain.Product{}, fmt.Errorf("insert product: %w", err)
 		}
 	}
 
 	return newProduct, nil
 }
 
-func (p *ProductService) GetProductByID(id int64) (product.Product, error) {
+func (p *ProductService) GetProductByID(id int64) (domain.Product, error) {
 	produc, err := p.models.Products.GetProductByID(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrProductNotFound):
-			return product.Product{}, ErrProductNotFound
+			return domain.Product{}, ErrProductNotFound
 		default:
-			return product.Product{}, fmt.Errorf("get product by id: %w", err)
+			return domain.Product{}, fmt.Errorf("get product by id: %w", err)
 		}
 	}
 	return produc, nil
 }
 
-func (p *ProductService) GetAllProducts() ([]product.Product, error) {
+func (p *ProductService) GetAllProducts() ([]domain.Product, error) {
 	products, err := p.models.Products.GetAllProducts()
 	if err != nil {
-		return []product.Product{}, fmt.Errorf("get all products: %w", err)
+		return []domain.Product{}, fmt.Errorf("get all products: %w", err)
 	}
 	return products, nil
 }
@@ -91,7 +91,7 @@ type UpdateProductParam struct {
 	AvailableAmount *int
 }
 
-func (u *UpdateProductParam) updateProduct(product product.Product) product.Product {
+func (u *UpdateProductParam) updateProduct(product domain.Product) domain.Product {
 	result := product
 	if u.Name != nil {
 		result.Name = *u.Name
@@ -115,26 +115,26 @@ func (u *UpdateProductParam) updateProduct(product product.Product) product.Prod
 	return result
 }
 
-func (p *ProductService) UpdateProduct(param UpdateProductParam) (product.Product, error) {
+func (p *ProductService) UpdateProduct(param UpdateProductParam) (domain.Product, error) {
 	fetchedProduct, err := p.GetProductByID(param.ID)
 	if err != nil {
-		return product.Product{}, fmt.Errorf("update product: %w", err)
+		return domain.Product{}, fmt.Errorf("update product: %w", err)
 	}
 
 	prod := param.updateProduct(fetchedProduct)
 
 	v := prod.Validate()
 	if v != nil {
-		return product.Product{}, v
+		return domain.Product{}, v
 	}
 
 	updatedProduct, err := p.models.Products.UpdateProduct(prod)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrEditConflict):
-			return product.Product{}, ErrEditConflict
+			return domain.Product{}, ErrEditConflict
 		default:
-			return product.Product{}, fmt.Errorf("update product: %w", err)
+			return domain.Product{}, fmt.Errorf("update product: %w", err)
 		}
 	}
 

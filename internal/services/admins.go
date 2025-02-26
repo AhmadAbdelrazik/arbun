@@ -1,8 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/admin"
-	"AhmadAbdelrazik/arbun/internal/domain/token"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"errors"
 	"fmt"
@@ -21,7 +20,7 @@ func newAdminService(models *models.Model) *AdminService {
 
 func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
-	var newAdmin admin.Admin
+	var newAdmin domain.Admin
 	newAdmin.FullName = fullName
 	newAdmin.Email = email
 	newAdmin.Password.Set(password)
@@ -84,7 +83,7 @@ func (a *AdminService) Logout(token Token) error {
 }
 
 func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := token.Generate(adminId, scope, ttl)
+	token, err := domain.Generate(adminId, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,14 +97,14 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 	return result, nil
 }
 
-func (s *AdminService) GetAdminbyAuthToken(tokenText string) (admin.Admin, error) {
+func (s *AdminService) GetAdminbyAuthToken(tokenText string) (domain.Admin, error) {
 	token, err := s.models.Tokens.GetToken(tokenText, models.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):
-			return admin.Admin{}, ErrInvalidAuthToken
+			return domain.Admin{}, ErrInvalidAuthToken
 		default:
-			return admin.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return domain.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 
@@ -113,9 +112,9 @@ func (s *AdminService) GetAdminbyAuthToken(tokenText string) (admin.Admin, error
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrAdminNotFound):
-			return admin.Admin{}, ErrInvalidAuthToken
+			return domain.Admin{}, ErrInvalidAuthToken
 		default:
-			return admin.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
+			return domain.Admin{}, fmt.Errorf("getAdminByToken: %w", err)
 		}
 	}
 

@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/assert"
-	"AhmadAbdelrazik/arbun/internal/domain/admin"
-	"AhmadAbdelrazik/arbun/internal/domain/customer"
-	"AhmadAbdelrazik/arbun/internal/domain/product"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"net/http"
 	"testing"
@@ -129,27 +127,27 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 }
 
 func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
-	var admin1 admin.Admin
+	var admin1 domain.Admin
 	admin1.FullName = "admin1"
 	admin1.Email = "admin1@example.com"
 
 	adminCookie := AddAdmin(t, ts, admin1, "password1")
 
-	product1 := product.Product{
+	product1 := domain.Product{
 		Name:            "product 1",
 		Description:     "description 1",
 		Vendor:          "vendor 1",
 		AvailableAmount: 10,
 		Price:           5.5,
 	}
-	product2 := product.Product{
+	product2 := domain.Product{
 		Name:            "product 2",
 		Description:     "description 2",
 		Vendor:          "vendor 2",
 		AvailableAmount: 10,
 		Price:           25.5,
 	}
-	product3 := product.Product{
+	product3 := domain.Product{
 		Name:            "product 3",
 		Description:     "description 3",
 		Vendor:          "vendor 3",
@@ -161,7 +159,7 @@ func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	AddProduct(t, ts, product2, adminCookie)
 	AddProduct(t, ts, product3, adminCookie)
 
-	var customer1 customer.Customer
+	var customer1 domain.Customer
 	customer1.FullName = "customer1"
 	customer1.Email = "customer1@example.com"
 	customerCookie := AddCustomer(t, ts, customer1, "password1")

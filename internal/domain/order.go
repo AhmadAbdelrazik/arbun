@@ -1,7 +1,6 @@
-package order
+package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/cart"
 	"time"
 )
 
@@ -10,7 +9,7 @@ const (
 	PaymentDebit = "Debit"
 )
 
-type Customer struct {
+type CustomerInfo struct {
 	ID              int64
 	DeliveryAddress string
 	MobilePhone     string
@@ -19,8 +18,8 @@ type Customer struct {
 type Order struct {
 	ID          int64
 	Time        time.Time
-	Cart        cart.Cart
+	Cart        Cart
 	PaymentType string
 	Status      string
-	Customer    Customer
+	Customer    CustomerInfo
 }

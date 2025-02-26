@@ -1,7 +1,6 @@
-package cart
+package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/product"
 	"AhmadAbdelrazik/arbun/internal/validator"
 )
 
@@ -18,7 +17,7 @@ type CartItem struct {
 	TotalPrice float32 `json:"total_price"`
 }
 
-func (c *CartItem) Populate(p product.Product, amount int) {
+func (c *CartItem) Populate(p Product, amount int) {
 	c.ProductID = p.ID
 	c.Name = p.Name
 	c.Amount = amount

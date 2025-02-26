@@ -1,7 +1,7 @@
 package services
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain/cart"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
 	"AhmadAbdelrazik/arbun/internal/validator"
 	"fmt"
@@ -17,23 +17,23 @@ func newCartService(models *models.Model) *CartService {
 	}
 }
 
-func (c *CartService) GetCart(customerID int64) (cart.Cart, error) {
+func (c *CartService) GetCart(customerID int64) (domain.Cart, error) {
 	items, err := c.models.Carts.GetAll(customerID)
 	if err != nil {
-		return cart.Cart{}, fmt.Errorf("getCartItems: %w", err)
+		return domain.Cart{}, fmt.Errorf("getCartItems: %w", err)
 	}
 
-	userCart := cart.Cart{
-		Items: make([]cart.CartItem, 0, len(items)),
+	userCart := domain.Cart{
+		Items: make([]domain.CartItem, 0, len(items)),
 	}
 
 	for _, item := range items {
 		product, err := c.models.Products.GetProductByID(item.ProductID)
 		if err != nil {
-			return cart.Cart{}, fmt.Errorf("getCartItems: %w", err)
+			return domain.Cart{}, fmt.Errorf("getCartItems: %w", err)
 		}
 
-		cartItem := cart.CartItem{}
+		cartItem := domain.CartItem{}
 		cartItem.Populate(product, item.Amount)
 
 		userCart.Price += cartItem.TotalPrice
@@ -55,39 +55,39 @@ type AddItemsParam struct {
 
 // UpdateItems - will add non existent items and set the items by productAmount
 // if item exists, then their amount will be productAmount
-func (c *CartService) UpdateItems(input AddItemsParam) (cart.Cart, error) {
+func (c *CartService) UpdateItems(input AddItemsParam) (domain.Cart, error) {
 	// 1. check if items are legitimate
 	items, err := c.checkItems(input.Items)
 	if err != nil {
-		return cart.Cart{}, fmt.Errorf("AddItems: %w", err)
+		return domain.Cart{}, fmt.Errorf("AddItems: %w", err)
 	}
 
 	// 2. Insert Items
 	for _, item := range items {
 		err := c.models.Carts.SetItem(input.CustomerID, item)
 		if err != nil {
-			return cart.Cart{}, fmt.Errorf("AddItems: %w", err)
+			return domain.Cart{}, fmt.Errorf("AddItems: %w", err)
 		}
 	}
 
 	return c.GetCart(input.CustomerID)
 }
 
-func (c *CartService) DeleteItem(customerID, productID int64) (cart.Cart, error) {
+func (c *CartService) DeleteItem(customerID, productID int64) (domain.Cart, error) {
 	err := c.models.Carts.DeleteItem(customerID, productID)
 	if err != nil {
-		return cart.Cart{}, fmt.Errorf("DeleteItem: %w", err)
+		return domain.Cart{}, fmt.Errorf("DeleteItem: %w", err)
 	}
 
 	return c.GetCart(customerID)
 }
 
-func (c *CartService) checkItems(items []InputItem) ([]cart.CartItem, error) {
+func (c *CartService) checkItems(items []InputItem) ([]domain.CartItem, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("checkItems: items are empty")
 	}
 
-	result := make([]cart.CartItem, 0, len(items))
+	result := make([]domain.CartItem, 0, len(items))
 
 	for _, item := range items {
 		product, err := c.models.Products.GetProductByID(item.ProductID)
@@ -95,7 +95,7 @@ func (c *CartService) checkItems(items []InputItem) ([]cart.CartItem, error) {
 			return nil, fmt.Errorf("checkItems: %w", ErrProductNotFound)
 		}
 
-		cartItem := cart.CartItem{}
+		cartItem := domain.CartItem{}
 
 		if product.AvailableAmount < item.Amount {
 			v := validator.New()
