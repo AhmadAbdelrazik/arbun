@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postProduct(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string            `json:"name"`
 		Description string            `json:"description"`
@@ -58,7 +58,7 @@ func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) GetProduct(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -81,7 +81,7 @@ func (app *Application) GetProduct(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
-func (app *Application) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := app.services.Products.GetAllProducts()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -115,7 +115,7 @@ func (p patchProductInput) GenerateParams(id int64) services.UpdateProductParam 
 	}
 }
 
-func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
+func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -154,7 +154,7 @@ func (app *Application) PatchProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-func (app *Application) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)

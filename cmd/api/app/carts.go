@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) GetCart(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getCart(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetUser(r).(domain.User)
 
 	cart, err := app.services.Carts.GetCart(customer.ID)
@@ -22,7 +22,7 @@ func (app *Application) GetCart(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) PostCartItems(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postCartItems(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetUser(r).(domain.User)
 
 	var input struct {
@@ -56,7 +56,7 @@ func (app *Application) PostCartItems(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteCartItem(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetUser(r).(domain.User)
 
 	var input struct {

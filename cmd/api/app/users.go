@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) PostSignup(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postSignup(w http.ResponseWriter, r *http.Request) {
 	// receive and validate JSON input
 	var input struct {
 		FullName string `json:"full_name"`
@@ -50,7 +50,7 @@ func (app *Application) PostSignup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postLogin(w http.ResponseWriter, r *http.Request) {
 	// receive and validate JSON input
 	var input struct {
 		Email    string `json:"email"`
@@ -86,7 +86,7 @@ func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) PostLogout(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postLogout(w http.ResponseWriter, r *http.Request) {
 	token, err := GetAuthToken(r)
 	if err != nil {
 		err = writeJSON(w, http.StatusOK, envelope{"message": "logged out successfully"}, nil)

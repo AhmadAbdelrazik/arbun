@@ -34,7 +34,7 @@ func (app *Application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (app *Application) IsUser(userType string, next http.HandlerFunc) http.HandlerFunc {
+func (app *Application) isUser(userType string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := GetAuthToken(r)
 		if err != nil {
@@ -63,10 +63,10 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 	})
 }
 
-func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
-	return app.IsUser(domain.TypeAdmin, next)
+func (app *Application) isAdmin(next http.HandlerFunc) http.HandlerFunc {
+	return app.isUser(domain.TypeAdmin, next)
 }
 
-func (app *Application) IsCustomer(next http.HandlerFunc) http.HandlerFunc {
-	return app.IsUser(domain.TypeCustomer, next)
+func (app *Application) isCustomer(next http.HandlerFunc) http.HandlerFunc {
+	return app.isUser(domain.TypeCustomer, next)
 }

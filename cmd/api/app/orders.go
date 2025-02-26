@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetUser(r).(domain.User)
 
 	var input struct {
@@ -20,14 +20,14 @@ func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *Application) PostOrderConfirmation(w http.ResponseWriter, r *http.Request) {
+func (app *Application) postOrderConfirmation(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {
 	// customer := app.contextGetUser(r).(domain.Customer)
 }
 
-func (app *Application) GetAllOrders(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getAllOrders(w http.ResponseWriter, r *http.Request) {
 	// customer := app.contextGetUser(r).(domain.Customer)
 }
