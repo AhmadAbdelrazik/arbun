@@ -6,6 +6,7 @@ type Services struct {
 	Products *ProductService
 	Users    *UserService
 	Carts    *CartService
+	Orders   *OrderService
 }
 
 func New() *Services {
@@ -14,5 +15,6 @@ func New() *Services {
 		Products: newProductService(models),
 		Users:    newUserService(models),
 		Carts:    newCartService(models),
+		Orders:   newOrderService(models),
 	}
 }
