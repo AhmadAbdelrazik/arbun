@@ -7,19 +7,18 @@ import (
 const (
 	PaymentCash  = "Cash"
 	PaymentDebit = "Debit"
+
+	StatusDispatched = "dispatched"
+	StatusCompleted  = "completed"
 )
 
-type CustomerInfo struct {
-	ID              int64
-	DeliveryAddress string
-	MobilePhone     string
-}
-
 type Order struct {
-	ID          int64        `json:"id"`
-	CreatedAt   time.Time    `json:"created_at"`
-	Cart        Cart         `json:"cart"`
-	PaymentType string       `json:"payment_type"`
-	Status      string       `json:"status"`
-	Customer    CustomerInfo `json:"customer"`
+	ID          int64     `json:"id"`
+	CustomerID  int64     `json:"customer_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	Cart        Cart      `json:"cart"`
+	PaymentType string    `json:"payment_type"`
+	Address     Address   `json:"address"`
+	MobilePhone string    `json:"mobile_phone"`
+	Status      string    `json:"status"`
 }

@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-const (
-	ScopeAuth = "authorization"
-)
-
 var (
 	ErrTokenNotFound = errors.New("token not found")
 )

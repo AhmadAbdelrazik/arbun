@@ -8,7 +8,7 @@ import (
 )
 
 func (app *Application) GetCart(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetUser(r).(domain.User)
 
 	cart, err := app.services.Carts.GetCart(customer.ID)
 	if err != nil {
@@ -23,7 +23,7 @@ func (app *Application) GetCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) PostCartItems(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetUser(r).(domain.User)
 
 	var input struct {
 		Items []services.InputItem `json:"items"`
@@ -57,7 +57,7 @@ func (app *Application) PostCartItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetUser(r).(domain.User)
 
 	var input struct {
 		ProductID int64 `json:"product_id"`

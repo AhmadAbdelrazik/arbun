@@ -18,19 +18,23 @@ type IUser interface {
 type User struct {
 	ID       int64    `json:"id"`
 	Email    string   `json:"email"`
-	Password Password `json:"password"`
+	Password Password `json:"-"`
 	Name     string   `json:"name"`
+	Type     string   `json:"-"`
 	Version  int      `json:"version"`
 }
 
-func (a *User) Validate(v *validator.Validator) {
-	v.Check(a.Name != "", "full_name", "must not be empty")
-	v.Check(len(a.Name) <= 40, "full_name", "must not be more than 40")
+func (u *User) Validate() *validator.Validator {
+	v := validator.New()
+	v.Check(u.Name != "", "full_name", "must not be empty")
+	v.Check(len(u.Name) <= 40, "full_name", "must not be more than 40")
 
-	v.Check(a.Email != "", "email", "must not be empty")
-	v.Check(v.Matches(a.Email, *validator.EmailRX), "email", "must be a valid email address")
+	v.Check(u.Email != "", "email", "must not be empty")
+	v.Check(v.Matches(u.Email, *validator.EmailRX), "email", "must be a valid email address")
 
-	a.Password.Validate(v)
+	u.Password.Validate(v)
+
+	return v.Err()
 }
 
 type Password struct {

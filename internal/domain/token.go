@@ -7,18 +7,24 @@ import (
 	"time"
 )
 
+const (
+	ScopeAuth = "authorization"
+)
+
 type Token struct {
 	UserID     int64
+	UserType   string
 	Plaintext  string
 	Hash       []byte
 	ExpiryTime time.Time
 	Scope      string
 }
 
-func Generate(userID int64, tokenScope string, ttl time.Duration) (Token, error) {
+func NewToken(userID int64, userType string, tokenScope string, ttl time.Duration) (Token, error) {
 	t := Token{
 		Scope:      tokenScope,
 		UserID:     userID,
+		UserType:   userType,
 		ExpiryTime: time.Now().Add(ttl),
 	}
 

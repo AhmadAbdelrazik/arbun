@@ -190,7 +190,7 @@ func adminLogin(t *testing.T, ts *TestClient) {
 
 			res, err := ts.Post("/login", responseBody)
 			assert.Nil(t, err)
-			assert.Equal(t, res.StatusCode, http.StatusForbidden)
+			assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
 			authCookie := ts.GetCookie(res, AuthCookie)
 			assert.True(t, authCookie == nil)
@@ -208,7 +208,7 @@ func adminLogin(t *testing.T, ts *TestClient) {
 
 			res, err := ts.Post("/login", responseBody)
 			assert.Nil(t, err)
-			assert.Equal(t, res.StatusCode, http.StatusForbidden)
+			assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
 			authCookie := ts.GetCookie(res, AuthCookie)
 			assert.True(t, authCookie == nil)

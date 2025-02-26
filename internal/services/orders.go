@@ -12,6 +12,6 @@ func newOrderService(models *models.Model) *OrderService {
 	}
 }
 
-func (s *OrderService) CreateOrder(customer int64) {
-	// NOTE: Figure out how services communications should be
+func (s *OrderService) CreateOrder(customerID int64, cart *CartService) {
+
 }

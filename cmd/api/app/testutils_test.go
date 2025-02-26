@@ -11,61 +11,6 @@ import (
 	"testing"
 )
 
-func AddCustomer(t *testing.T, ts *TestClient, c domain.Customer, password string) *http.Cookie {
-	t.Helper()
-
-	body := struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		FullName: c.Name,
-		Email:    c.Email,
-		Password: password,
-		UserType: domain.TypeCustomer,
-	}
-	res, err := ts.Post("/signup", body)
-	assert.Nil(t, err)
-	cookie := ts.GetCookie(res, AuthCookie)
-
-	assert.Nil(t, cookie.Valid())
-	assert.True(t, len(cookie.Value) == 26)
-
-	return cookie
-}
-
-func AddAdmin(t *testing.T, ts *TestClient, a domain.Admin, password string) *http.Cookie {
-	t.Helper()
-
-	body := struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"type"`
-	}{
-		FullName: a.Name,
-		Email:    a.Email,
-		Password: password,
-		UserType: domain.TypeAdmin,
-	}
-	res, err := ts.Post("/signup", body)
-	assert.Nil(t, err)
-	cookie := ts.GetCookie(res, AuthCookie)
-
-	assert.Nil(t, cookie.Valid())
-	assert.True(t, len(cookie.Value) == 26)
-
-	return cookie
-}
-
-func AddProduct(t *testing.T, ts *TestClient, p domain.Product, adminCookie *http.Cookie) {
-	t.Helper()
-	res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
-	assert.Nil(t, err)
-	assert.Equal(t, res.StatusCode, http.StatusCreated)
-}
-
 type TestClient struct {
 	server *httptest.Server
 }
@@ -185,4 +130,59 @@ func (c *TestClient) PatchWithCookies(endpoint string, body any, cookies ...*htt
 
 func (c *TestClient) DeleteWithCookies(endpoint string, body any, cookies ...*http.Cookie) (*http.Response, error) {
 	return c.Do(http.MethodDelete, endpoint, body, cookies...)
+}
+
+func AddCustomer(t *testing.T, ts *TestClient, c domain.Customer, password string) *http.Cookie {
+	t.Helper()
+
+	body := struct {
+		FullName string `json:"full_name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		UserType string `json:"type"`
+	}{
+		FullName: c.Name,
+		Email:    c.Email,
+		Password: password,
+		UserType: domain.TypeCustomer,
+	}
+	res, err := ts.Post("/signup", body)
+	assert.Nil(t, err)
+	cookie := ts.GetCookie(res, AuthCookie)
+
+	assert.Nil(t, cookie.Valid())
+	assert.True(t, len(cookie.Value) == 26)
+
+	return cookie
+}
+
+func AddAdmin(t *testing.T, ts *TestClient, a domain.Admin, password string) *http.Cookie {
+	t.Helper()
+
+	body := struct {
+		FullName string `json:"full_name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		UserType string `json:"type"`
+	}{
+		FullName: a.Name,
+		Email:    a.Email,
+		Password: password,
+		UserType: domain.TypeAdmin,
+	}
+	res, err := ts.Post("/signup", body)
+	assert.Nil(t, err)
+	cookie := ts.GetCookie(res, AuthCookie)
+
+	assert.Nil(t, cookie.Valid())
+	assert.True(t, len(cookie.Value) == 26)
+
+	return cookie
+}
+
+func AddProduct(t *testing.T, ts *TestClient, p domain.Product, adminCookie *http.Cookie) {
+	t.Helper()
+	res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, http.StatusCreated)
 }

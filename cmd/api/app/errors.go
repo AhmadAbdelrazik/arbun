@@ -43,6 +43,11 @@ func (app *Application) editConflictResponse(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) authenticationErrorResponse(w http.ResponseWriter, r *http.Request) {
 	message := "Authentication credentials were not provided or are invalid."
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *Application) unauthorizedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "Insufficient permission to access the resource"
 	app.errorResponse(w, r, http.StatusForbidden, message)
 }
 

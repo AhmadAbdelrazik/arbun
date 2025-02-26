@@ -42,7 +42,7 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 			return
 		}
 
-		user, err := app.services.Users.GetAuthToken(token.Plaintext, userType)
+		user, err := app.services.Users.GetUserByToken(token.Plaintext)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):
@@ -51,6 +51,10 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 				app.serverErrorResponse(w, r, err)
 			}
 			return
+		}
+
+		if user.Type != userType {
+
 		}
 
 		r = app.contextSetUser(r, user)
@@ -60,27 +64,9 @@ func (app *Application) IsUser(userType string, next http.HandlerFunc) http.Hand
 }
 
 func (app *Application) IsAdmin(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 1. Check for token
-		token, err := GetAuthToken(r)
-		if err != nil {
-			app.authenticationErrorResponse(w, r)
-			return
-		}
-		// 2. register admin in the request contexdomain
-		user, err := app.services.Users.GetAuthToken(token.Plaintext, domain.TypeAdmin)
-		if err != nil {
-			switch {
-			case errors.Is(err, services.ErrInvalidAuthToken):
-				app.authenticationErrorResponse(w, r)
-			default:
-				app.serverErrorResponse(w, r, err)
-			}
-			return
-		}
+	return app.IsUser(domain.TypeAdmin, next)
+}
 
-		r = app.contextSetUser(r, user)
-
-		next.ServeHTTP(w, r)
-	})
+func (app *Application) IsCustomer(next http.HandlerFunc) http.HandlerFunc {
+	return app.IsUser(domain.TypeCustomer, next)
 }

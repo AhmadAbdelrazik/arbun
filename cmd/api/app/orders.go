@@ -6,7 +6,8 @@ import (
 )
 
 func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetUser(r).(domain.User)
+
 	var input struct {
 		DeliveryAddress string
 		MobilePhone     string
@@ -15,7 +16,11 @@ func (app *Application) PostOrder(w http.ResponseWriter, r *http.Request) {
 
 	readJSON(w, r, &input)
 
-	app.services.Orders.CreateOrder(customer.ID)
+	app.services.Orders.CreateOrder(customer.ID, app.services.Carts)
+
+}
+
+func (app *Application) PostOrderConfirmation(w http.ResponseWriter, r *http.Request) {
 
 }
 

@@ -39,12 +39,13 @@ func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
 }
 
 func (m *OrderModel) GetAll(customerID int64) ([]domain.Order, error) {
-	orders := make([]domain.Order, 0, 10)
-	for _, o := range orders {
-		if o.Customer.ID == customerID {
-			orders = append(orders, o)
-		}
-	}
-
-	return orders, nil
+	// orders := make([]domain.Order, 0, 10)
+	// for _, o := range orders {
+	// 	if o.Customer.ID == customerID {
+	// 		orders = append(orders, o)
+	// 	}
+	// }
+	//
+	// return orders, nil
+	return nil, nil
 }

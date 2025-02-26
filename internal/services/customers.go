@@ -41,7 +41,7 @@ func (a *CustomerService) Signup(fullName, email, password string) (Token, error
 		}
 	}
 
-	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, domain.ScopeAuth, 3*time.Hour)
 }
 func (a *CustomerService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
@@ -65,7 +65,7 @@ func (a *CustomerService) Login(email, password string) (Token, error) {
 	}
 
 	// 3. Return an Auth token
-	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, domain.ScopeAuth, 3*time.Hour)
 }
 
 func (a *CustomerService) Logout(token Token) error {
@@ -83,7 +83,7 @@ func (a *CustomerService) Logout(token Token) error {
 }
 
 func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := domain.Generate(adminId, scope, ttl)
+	token, err := domain.NewToken(adminId, domain.TypeCustomer, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,7 +98,7 @@ func (a *CustomerService) generateToken(adminId int64, scope string, ttl time.Du
 }
 
 func (a *CustomerService) GetCustomerbyAuthToken(tokenText string) (domain.Customer, error) {
-	token, err := a.models.Tokens.GetToken(tokenText, models.ScopeAuth)
+	token, err := a.models.Tokens.GetToken(tokenText, domain.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):

@@ -7,6 +7,7 @@ type Model struct {
 	Tokens    *TokenModel
 	Carts     *CartModel
 	Orders    *OrderModel
+	Users     *UserModel
 }
 
 func NewModel() *Model {
@@ -17,5 +18,6 @@ func NewModel() *Model {
 		Tokens:    newTokenModel(),
 		Carts:     newCartModel(),
 		Orders:    newOrderModel(),
+		Users:     newUserModel(),
 	}
 }

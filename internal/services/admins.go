@@ -41,7 +41,7 @@ func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 		}
 	}
 
-	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, domain.ScopeAuth, 3*time.Hour)
 }
 func (a *AdminService) Login(email, password string) (Token, error) {
 	// 1. Fetch the provided email
@@ -65,7 +65,7 @@ func (a *AdminService) Login(email, password string) (Token, error) {
 	}
 
 	// 3. Return an Auth token
-	return a.generateToken(admin.ID, models.ScopeAuth, 3*time.Hour)
+	return a.generateToken(admin.ID, domain.ScopeAuth, 3*time.Hour)
 }
 
 func (a *AdminService) Logout(token Token) error {
@@ -83,7 +83,7 @@ func (a *AdminService) Logout(token Token) error {
 }
 
 func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Duration) (Token, error) {
-	token, err := domain.Generate(adminId, scope, ttl)
+	token, err := domain.NewToken(adminId, domain.TypeAdmin, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
@@ -98,7 +98,7 @@ func (a *AdminService) generateToken(adminId int64, scope string, ttl time.Durat
 }
 
 func (s *AdminService) GetAdminbyAuthToken(tokenText string) (domain.Admin, error) {
-	token, err := s.models.Tokens.GetToken(tokenText, models.ScopeAuth)
+	token, err := s.models.Tokens.GetToken(tokenText, domain.ScopeAuth)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrTokenNotFound):

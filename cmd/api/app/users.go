@@ -67,7 +67,6 @@ func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
 	token, err := app.services.Users.Login(
 		input.Email,
 		input.Password,
-		input.UserType,
 	)
 	if err != nil {
 		switch {
