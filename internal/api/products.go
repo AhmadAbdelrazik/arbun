@@ -1,42 +1,44 @@
 package handlers
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
 )
 
-type postProductInput struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Properties  map[string]string `json:"properties"`
-	Vendor      string            `json:"vendor"`
-	Amount      int               `json:"amount"`
-	Price       float32           `json:"price"`
-}
-
-func (p postProductInput) GenerateParams() services.InsertProductParam {
-	return services.InsertProductParam{
-		Name:            p.Name,
-		Description:     p.Description,
-		Properties:      p.Properties,
-		Vendor:          p.Vendor,
-		AvailableAmount: p.Amount,
-		Price:           p.Price,
-	}
-}
-
 func (app *Application) PostProduct(w http.ResponseWriter, r *http.Request) {
-	var input postProductInput
+	var input struct {
+		Name        string            `json:"name"`
+		Description string            `json:"description"`
+		Properties  map[string]string `json:"properties"`
+		Vendor      string            `json:"vendor"`
+		Amount      int               `json:"amount"`
+		Price       float32           `json:"price"`
+	}
 	err := readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	params := input.GenerateParams()
-	product, err := app.services.Products.InsertProduct(params)
+	p := domain.Product{
+		Name:            input.Name,
+		Description:     input.Description,
+		Properties:      input.Properties,
+		Vendor:          input.Vendor,
+		Price:           input.Price,
+		AvailableAmount: input.Amount,
+	}
+
+	v := p.Validate()
+	if v != nil {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	product, err := app.services.Products.InsertProduct(p)
 	if err != nil {
 		var v *validator.Validator
 		switch {

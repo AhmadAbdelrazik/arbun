@@ -189,10 +189,30 @@ func deleteProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 	})
 }
 
+type PostProduct struct {
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Properties  map[string]string `json:"properties"`
+	Vendor      string            `json:"vendor"`
+	Amount      int               `json:"amount"`
+	Price       float32           `json:"price"`
+}
+
+func toPostProduct(p domain.Product) PostProduct {
+	return PostProduct{
+		Name:        p.Name,
+		Description: p.Description,
+		Properties:  p.Properties,
+		Vendor:      p.Vendor,
+		Amount:      p.AvailableAmount,
+		Price:       p.Price,
+	}
+}
+
 func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products []domain.Product) {
-	for i, p := range products {
+	for i, product := range products {
 		t.Run(fmt.Sprintf("product%d", i), func(t *testing.T) {
-			res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
+			res, err := ts.PostWithCookies("/products", toPostProduct(product), adminCookie)
 			assert.Nil(t, err)
 
 			var responseBody struct {
@@ -201,14 +221,14 @@ func validPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie, products 
 
 			err = ts.ReadResponseBody(res, &responseBody)
 			assert.Nil(t, err)
-			assert.Equal(t, responseBody.Product.String(), p.String())
 			assert.Equal(t, res.StatusCode, http.StatusCreated)
+			assert.Equal(t, responseBody.Product.String(), product.String())
 		})
 	}
 }
 
 func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
-	mainProduct := domain.Product{
+	product := domain.Product{
 		ID:              3,
 		Name:            "product 2",
 		Description:     "description of product 2",
@@ -225,7 +245,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			Error string `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(mainProduct), adminCookie)
+		res, err := ts.PostWithCookies("/products", toPostProduct(product), adminCookie)
 		assert.Nil(t, err)
 
 		err = ts.ReadResponseBody(res, &responseBody)
@@ -235,8 +255,8 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 		assert.Equal(t, responseBody.Error, "product already exists")
 	})
 	t.Run("invalid product amount", func(t *testing.T) {
-		p := mainProduct
-		p.AvailableAmount = 0
+		p := product
+		p.AvailableAmount = -1
 
 		var responseBody struct {
 			Error struct {
@@ -244,16 +264,17 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
 		assert.Nil(t, err)
 
-		ts.ReadResponseBody(res, &responseBody)
+		err = ts.ReadResponseBody(res, &responseBody)
+		assert.Nil(t, err)
 
 		assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
 		assert.Equal(t, responseBody.Error.Amount, "must be more than 0")
 	})
 	t.Run("missing product name and description", func(t *testing.T) {
-		p := mainProduct
+		p := product
 		p.Name = ""
 		p.Description = ""
 
@@ -264,7 +285,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
 		assert.Nil(t, err)
 
 		ts.ReadResponseBody(res, &responseBody)
@@ -274,7 +295,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 		assert.Equal(t, responseBody.Error.Description, "can't be empty")
 	})
 	t.Run("missing product name", func(t *testing.T) {
-		p := mainProduct
+		p := product
 		p.Name = ""
 
 		var responseBody struct {
@@ -283,7 +304,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 			} `json:"error"`
 		}
 
-		res, err := ts.PostWithCookies("/products", ProductToPostProductInput(p), adminCookie)
+		res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
 		assert.Nil(t, err)
 
 		ts.ReadResponseBody(res, &responseBody)
@@ -292,7 +313,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 		assert.Equal(t, responseBody.Error.Name, "can't be empty")
 	})
 	t.Run("invalid product", func(t *testing.T) {
-		p := mainProduct
+		p := product
 
 		var responseBody struct {
 			Error string `json:"error"`

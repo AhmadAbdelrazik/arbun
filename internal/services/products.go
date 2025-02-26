@@ -23,25 +23,7 @@ func newProductService(model *models.Model) *ProductService {
 	}
 }
 
-type InsertProductParam struct {
-	Name            string
-	Description     string
-	Vendor          string
-	Properties      map[string]string
-	Price           float32
-	AvailableAmount int
-}
-
-func (s *ProductService) InsertProduct(param InsertProductParam) (domain.Product, error) {
-	p := domain.Product{
-		Name:            param.Name,
-		Description:     param.Description,
-		Properties:      param.Properties,
-		Vendor:          param.Vendor,
-		Price:           param.Price,
-		AvailableAmount: param.AvailableAmount,
-	}
-
+func (s *ProductService) InsertProduct(p domain.Product) (domain.Product, error) {
 	v := p.Validate()
 	if v != nil {
 		return domain.Product{}, v

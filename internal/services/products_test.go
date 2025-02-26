@@ -50,9 +50,7 @@ func TestProductInsertion(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.TestName, func(t *testing.T) {
-				params := productToInsertParam(tt.product)
-
-				got, err := productService.InsertProduct(params)
+				got, err := productService.InsertProduct(tt.product)
 				assert.Nil(t, err)
 				assert.Equal(t, got.String(), tt.product.String())
 			})
@@ -72,7 +70,7 @@ func TestProductInsertion(t *testing.T) {
 			},
 			AvailableAmount: 4,
 		}
-		productService.InsertProduct(productToInsertParam(firstProduct))
+		productService.InsertProduct(firstProduct)
 
 		invalidProduct := domain.Product{
 			Name:        "product 1",
@@ -85,7 +83,7 @@ func TestProductInsertion(t *testing.T) {
 			AvailableAmount: 6,
 		}
 
-		p, err := productService.InsertProduct(productToInsertParam(invalidProduct))
+		p, err := productService.InsertProduct(invalidProduct)
 
 		assert.Err(t, err, models.ErrDuplicateProduct)
 		assert.Equal(t, p.String(), domain.Product{}.String())
@@ -123,8 +121,8 @@ func TestProductFetching(t *testing.T) {
 		ID:              2,
 	}
 
-	productService.InsertProduct(productToInsertParam(product1))
-	productService.InsertProduct(productToInsertParam(product2))
+	productService.InsertProduct(product1)
+	productService.InsertProduct(product2)
 
 	t.Run("valid fetch", func(t *testing.T) {
 		p, err := productService.GetProductByID(1)
@@ -167,7 +165,7 @@ func TestProductUpdate(t *testing.T) {
 		ID:              1,
 	}
 
-	service.InsertProduct(productToInsertParam(product1))
+	service.InsertProduct(product1)
 	newName := "product 1 new name"
 
 	t.Run("valid update", func(t *testing.T) {
@@ -209,7 +207,7 @@ func TestProductDeletion(t *testing.T) {
 		ID:              1,
 	}
 
-	service.InsertProduct(productToInsertParam(product1))
+	service.InsertProduct(product1)
 
 	t.Run("invalid deletion", func(t *testing.T) {
 		err := service.DeleteProduct(4)
@@ -224,15 +222,4 @@ func TestProductDeletion(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, len(products), 0)
 	})
-}
-
-func productToInsertParam(p domain.Product) InsertProductParam {
-	return InsertProductParam{
-		Name:            p.Name,
-		Description:     p.Description,
-		Vendor:          p.Vendor,
-		Properties:      p.Properties,
-		AvailableAmount: p.AvailableAmount,
-		Price:           p.Price,
-	}
 }
