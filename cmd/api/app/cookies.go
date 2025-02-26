@@ -19,20 +19,16 @@ func SetAuthTokenCookie(w http.ResponseWriter, token services.Token) {
 	http.SetCookie(w, cookie)
 }
 
-func GetAuthToken(r *http.Request) (services.Token, error) {
+func GetAuthToken(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(AuthCookie)
 	if err != nil {
-		return services.Token{}, err
+		return "", err
 	}
 
 	err = cookie.Valid()
 	if err != nil {
-		return services.Token{}, err
+		return "", err
 	}
 
-	token := services.Token{
-		Plaintext: cookie.Value,
-	}
-
-	return token, nil
+	return cookie.Value, nil
 }

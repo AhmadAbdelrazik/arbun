@@ -16,9 +16,7 @@ var (
 )
 
 type UserService struct {
-	admins    *AdminService
-	customers *CustomerService
-	models    *models.Model
+	models *models.Model
 }
 
 type Token struct {
@@ -28,9 +26,7 @@ type Token struct {
 
 func newUserService(models *models.Model) *UserService {
 	return &UserService{
-		admins:    newAdminService(models),
-		customers: newCustomerService(models),
-		models:    models,
+		models: models,
 	}
 }
 
@@ -87,15 +83,23 @@ func (s *UserService) Login(email, password string) (Token, error) {
 	return s.generateToken(user.ID, user.Type, domain.ScopeAuth, 3*time.Hour)
 }
 
-func (s *UserService) Logout(token Token, userType string) error {
-	switch userType {
-	case domain.TypeAdmin:
-		return s.admins.Logout(token)
-	case domain.TypeCustomer:
-		return s.customers.Logout(token)
-	default:
-		return fmt.Errorf("logout: %w", ErrInvalidUserType)
+func (s *UserService) Logout(tokenText string, userType string) error {
+	token, err := s.models.Tokens.GetToken(tokenText, domain.ScopeAuth)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrTokenNotFound):
+			return ErrInvalidAuthToken
+		default:
+			return fmt.Errorf("getUserByToken: %w", err)
+		}
 	}
+
+	err = s.models.Tokens.DeleteTokensByID(token.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *UserService) GetUserByToken(tokenText string) (domain.User, error) {

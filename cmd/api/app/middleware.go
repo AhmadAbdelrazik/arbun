@@ -42,7 +42,7 @@ func (app *Application) isUser(userType string, next http.HandlerFunc) http.Hand
 			return
 		}
 
-		user, err := app.services.Users.GetUserByToken(token.Plaintext)
+		user, err := app.services.Users.GetUserByToken(token)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrInvalidAuthToken):
