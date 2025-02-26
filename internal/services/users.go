@@ -19,18 +19,13 @@ type UserService struct {
 	models *models.Model
 }
 
-type Token struct {
-	Plaintext  string
-	ExpiryTime time.Time
-}
-
 func newUserService(models *models.Model) *UserService {
 	return &UserService{
 		models: models,
 	}
 }
 
-func (s *UserService) Signup(fullName, email, password, userType string) (Token, error) {
+func (s *UserService) Signup(fullName, email, password, userType string) (domain.Token, error) {
 	// 1. user provide credentials
 	user := domain.User{
 		Name:  fullName,
@@ -41,7 +36,7 @@ func (s *UserService) Signup(fullName, email, password, userType string) (Token,
 
 	v := user.Validate()
 	if v != nil {
-		return Token{}, v
+		return domain.Token{}, v
 	}
 
 	// 2. check that email is not used
@@ -49,34 +44,34 @@ func (s *UserService) Signup(fullName, email, password, userType string) (Token,
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrDuplicateUser):
-			return Token{}, ErrEmailAlreadyTaken
+			return domain.Token{}, ErrEmailAlreadyTaken
 		default:
-			return Token{}, fmt.Errorf("user signup: %w", err)
+			return domain.Token{}, fmt.Errorf("user signup: %w", err)
 		}
 	}
 
 	return s.generateToken(newUser.ID, newUser.Type, domain.ScopeAuth, 3*time.Hour)
 }
 
-func (s *UserService) Login(email, password string) (Token, error) {
+func (s *UserService) Login(email, password string) (domain.Token, error) {
 	// 1. Fetch the provided email
 	user, err := s.models.Users.GetUserByEmail(email)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			return Token{}, ErrInvalidCredentials
+			return domain.Token{}, ErrInvalidCredentials
 		default:
-			return Token{}, fmt.Errorf("user login: %w", err)
+			return domain.Token{}, fmt.Errorf("user login: %w", err)
 		}
 	}
 	// 2. Check for password match
 	match, err := user.Password.Matches(password)
 	if err != nil {
-		return Token{}, fmt.Errorf("user login: %w", err)
+		return domain.Token{}, fmt.Errorf("user login: %w", err)
 	}
 
 	if !match {
-		return Token{}, ErrInvalidCredentials
+		return domain.Token{}, ErrInvalidCredentials
 	}
 
 	// 3. Return an Auth token
@@ -126,15 +121,15 @@ func (s *UserService) GetUserByToken(tokenText string) (domain.User, error) {
 	return a, nil
 }
 
-func (a *UserService) generateToken(userID int64, userType string, scope string, ttl time.Duration) (Token, error) {
+func (a *UserService) generateToken(userID int64, userType string, scope string, ttl time.Duration) (domain.Token, error) {
 	token, err := domain.NewToken(userID, userType, scope, ttl)
 
 	err = a.models.Tokens.InsertToken(token)
 	if err != nil {
-		return Token{}, fmt.Errorf("userService generateToken: %w", err)
+		return domain.Token{}, fmt.Errorf("userService generateToken: %w", err)
 	}
 
-	result := Token{
+	result := domain.Token{
 		Plaintext:  token.Plaintext,
 		ExpiryTime: token.ExpiryTime,
 	}

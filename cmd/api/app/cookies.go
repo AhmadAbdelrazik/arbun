@@ -1,7 +1,7 @@
 package app
 
 import (
-	"AhmadAbdelrazik/arbun/internal/services"
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"net/http"
 )
 
@@ -9,7 +9,7 @@ const (
 	AuthCookie = "AuthCookie"
 )
 
-func SetAuthTokenCookie(w http.ResponseWriter, token services.Token) {
+func SetAuthTokenCookie(w http.ResponseWriter, token domain.Token) {
 	cookie := &http.Cookie{
 		Name:    AuthCookie,
 		Value:   token.Plaintext,
