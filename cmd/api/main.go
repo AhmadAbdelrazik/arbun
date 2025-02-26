@@ -1,12 +1,12 @@
 package main
 
 import (
-	"AhmadAbdelrazik/arbun/internal/api"
+	"AhmadAbdelrazik/arbun/cmd/api/app"
 	"log"
 )
 
 func main() {
-	app := handlers.NewApplication()
+	app := app.NewApplication()
 
 	err := app.Serve()
 	if err != nil {

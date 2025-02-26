@@ -1,4 +1,4 @@
-package handlers
+package app
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
@@ -8,19 +8,19 @@ import (
 	"testing"
 )
 
-func TestAdmin(t *testing.T) {
+func TestCustomer(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
 
 	t.Run("signup", func(t *testing.T) {
-		adminSignup(t, ts)
+		customerSignup(t, ts)
 	})
 	t.Run("login", func(t *testing.T) {
-		adminLogin(t, ts)
+		customerLogin(t, ts)
 	})
 }
 
-func adminSignup(t *testing.T, ts *TestClient) {
+func customerSignup(t *testing.T, ts *TestClient) {
 	t.Run("valid signups", func(t *testing.T) {
 		tests := []struct {
 			FullName string `json:"full_name"`
@@ -29,21 +29,21 @@ func adminSignup(t *testing.T, ts *TestClient) {
 			UserType string `json:"type"`
 		}{
 			{
-				FullName: "admin1",
-				Email:    "admin1@example.com",
+				FullName: "customer1",
+				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			},
 			{
-				FullName: "admin2",
-				Email:    "admin2@example.com",
+				FullName: "customer2",
+				Email:    "customer2@example.com",
 				Password: "password2",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			},
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("admin%d", i+1), func(t *testing.T) {
+			t.Run(fmt.Sprintf("customer%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/signup", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusCreated)
@@ -65,9 +65,9 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				UserType string `json:"type"`
 			}{
 				FullName: "",
-				Email:    "admin4@example.com",
+				Email:    "customer4@example.com",
 				Password: "password4",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -94,10 +94,10 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				Password string `json:"password"`
 				UserType string `json:"type"`
 			}{
-				FullName: "admin1",
+				FullName: "customer1",
 				Email:    "",
 				Password: "",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -126,10 +126,10 @@ func adminSignup(t *testing.T, ts *TestClient) {
 				Password string `json:"password"`
 				UserType string `json:"type"`
 			}{
-				FullName: "admin1",
-				Email:    "admin1@example.com",
+				FullName: "customer1",
+				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			}
 
 			res, err := ts.Post("/signup", requestBody)
@@ -143,7 +143,7 @@ func adminSignup(t *testing.T, ts *TestClient) {
 
 }
 
-func adminLogin(t *testing.T, ts *TestClient) {
+func customerLogin(t *testing.T, ts *TestClient) {
 	t.Run("valid logins", func(t *testing.T) {
 		tests := []struct {
 			Email    string `json:"email"`
@@ -151,19 +151,19 @@ func adminLogin(t *testing.T, ts *TestClient) {
 			UserType string `json:"type"`
 		}{
 			{
-				Email:    "admin1@example.com",
+				Email:    "customer1@example.com",
 				Password: "password1",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			},
 			{
-				Email:    "admin2@example.com",
+				Email:    "customer2@example.com",
 				Password: "password2",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			},
 		}
 
 		for i, tt := range tests {
-			t.Run(fmt.Sprintf("admin%d", i+1), func(t *testing.T) {
+			t.Run(fmt.Sprintf("customer%d", i+1), func(t *testing.T) {
 				res, err := ts.Post("/login", tt)
 				assert.Nil(t, err)
 				assert.Equal(t, res.StatusCode, http.StatusOK)
@@ -183,9 +183,9 @@ func adminLogin(t *testing.T, ts *TestClient) {
 				Password string `json:"password"`
 				UserType string `json:"type"`
 			}{
-				Email:    "admin3@example.com",
+				Email:    "customer3@example.com",
 				Password: "password1",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			}
 
 			res, err := ts.Post("/login", responseBody)
@@ -201,9 +201,9 @@ func adminLogin(t *testing.T, ts *TestClient) {
 				Password string `json:"password"`
 				UserType string `json:"type"`
 			}{
-				Email:    "admin1@example.com",
+				Email:    "customer1@example.com",
 				Password: "password2",
-				UserType: domain.TypeAdmin,
+				UserType: domain.TypeCustomer,
 			}
 
 			res, err := ts.Post("/login", responseBody)
