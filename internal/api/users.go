@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"AhmadAbdelrazik/arbun/internal/services"
-	"AhmadAbdelrazik/arbun/internal/validator"
 	"errors"
 	"net/http"
 )

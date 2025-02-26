@@ -16,10 +16,10 @@ type CustomerInfo struct {
 }
 
 type Order struct {
-	ID          int64
-	Time        time.Time
-	Cart        Cart
-	PaymentType string
-	Status      string
-	Customer    CustomerInfo
+	ID          int64        `json:"id"`
+	CreatedAt   time.Time    `json:"created_at"`
+	Cart        Cart         `json:"cart"`
+	PaymentType string       `json:"payment_type"`
+	Status      string       `json:"status"`
+	Customer    CustomerInfo `json:"customer"`
 }

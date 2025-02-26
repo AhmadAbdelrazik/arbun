@@ -1,8 +1,8 @@
 package models
 
 import (
-	"AhmadAbdelrazik/arbun/internal/assert"
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/pkg/assert"
 	"testing"
 	"time"
 )

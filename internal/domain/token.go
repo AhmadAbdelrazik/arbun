@@ -15,10 +15,10 @@ type Token struct {
 	Scope      string
 }
 
-func Generate(adminID int64, tokenScope string, ttl time.Duration) (Token, error) {
+func Generate(userID int64, tokenScope string, ttl time.Duration) (Token, error) {
 	t := Token{
 		Scope:      tokenScope,
-		UserID:     adminID,
+		UserID:     userID,
 		ExpiryTime: time.Now().Add(ttl),
 	}
 

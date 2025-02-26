@@ -21,7 +21,7 @@ func newAdminService(models *models.Model) *AdminService {
 func (a *AdminService) Signup(fullName, email, password string) (Token, error) {
 	// 1. user provide credentials
 	var newAdmin domain.Admin
-	newAdmin.FullName = fullName
+	newAdmin.Name = fullName
 	newAdmin.Email = email
 	newAdmin.Password.Set(password)
 

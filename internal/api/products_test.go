@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/assert"
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/pkg/assert"
 	"fmt"
 	"net/http"
 	"testing"
@@ -14,7 +14,7 @@ func TestProduct(t *testing.T) {
 
 	var a domain.Admin
 	a.Email = "admin@gmail.com"
-	a.FullName = "admin"
+	a.Name = "admin"
 
 	products := []domain.Product{
 		{
@@ -305,6 +305,6 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 		assert.Nil(t, err)
 
 		assert.Equal(t, res.StatusCode, http.StatusBadRequest)
-		assert.Equal(t, responseBody.Error, `body contains unknown key "ID"`)
+		assert.Equal(t, responseBody.Error, `body contains unknown key "id"`)
 	})
 }

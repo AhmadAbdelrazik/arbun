@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/validator"
+	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 )
 
 type Admin struct {

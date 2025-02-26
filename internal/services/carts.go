@@ -3,7 +3,7 @@ package services
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
-	"AhmadAbdelrazik/arbun/internal/validator"
+	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"fmt"
 )
 

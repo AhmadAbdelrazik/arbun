@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/validator"
+	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,16 +16,16 @@ type IUser interface {
 }
 
 type User struct {
-	ID       int64
-	Email    string
-	Password Password
-	FullName string
-	Version  int
+	ID       int64    `json:"id"`
+	Email    string   `json:"email"`
+	Password Password `json:"password"`
+	Name     string   `json:"name"`
+	Version  int      `json:"version"`
 }
 
 func (a *User) Validate(v *validator.Validator) {
-	v.Check(a.FullName != "", "full_name", "must not be empty")
-	v.Check(len(a.FullName) <= 40, "full_name", "must not be more than 40")
+	v.Check(a.Name != "", "full_name", "must not be empty")
+	v.Check(len(a.Name) <= 40, "full_name", "must not be more than 40")
 
 	v.Check(a.Email != "", "email", "must not be empty")
 	v.Check(v.Matches(a.Email, *validator.EmailRX), "email", "must be a valid email address")

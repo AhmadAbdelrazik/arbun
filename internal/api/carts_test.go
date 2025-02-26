@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/assert"
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/pkg/assert"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"net/http"
 	"testing"
@@ -128,7 +128,7 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 
 func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	var admin1 domain.Admin
-	admin1.FullName = "admin1"
+	admin1.Name = "admin1"
 	admin1.Email = "admin1@example.com"
 
 	adminCookie := AddAdmin(t, ts, admin1, "password1")
@@ -160,7 +160,7 @@ func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	AddProduct(t, ts, product3, adminCookie)
 
 	var customer1 domain.Customer
-	customer1.FullName = "customer1"
+	customer1.Name = "customer1"
 	customer1.Email = "customer1@example.com"
 	customerCookie := AddCustomer(t, ts, customer1, "password1")
 

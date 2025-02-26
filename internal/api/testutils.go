@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/assert"
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/pkg/assert"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -31,7 +31,7 @@ func AddCustomer(t *testing.T, ts *TestClient, c domain.Customer, password strin
 		Password string `json:"password"`
 		UserType string `json:"type"`
 	}{
-		FullName: c.FullName,
+		FullName: c.Name,
 		Email:    c.Email,
 		Password: password,
 		UserType: domain.TypeCustomer,
@@ -55,7 +55,7 @@ func AddAdmin(t *testing.T, ts *TestClient, a domain.Admin, password string) *ht
 		Password string `json:"password"`
 		UserType string `json:"type"`
 	}{
-		FullName: a.FullName,
+		FullName: a.Name,
 		Email:    a.Email,
 		Password: password,
 		UserType: domain.TypeAdmin,

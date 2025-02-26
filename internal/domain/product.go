@@ -1,19 +1,19 @@
 package domain
 
 import (
-	"AhmadAbdelrazik/arbun/internal/validator"
+	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"encoding/json"
 )
 
 type Product struct {
-	ID              int64
-	Name            string
-	Description     string
-	Vendor          string
-	Properties      map[string]string
-	Price           float32
-	AvailableAmount int
-	Version         int
+	ID              int64             `json:"id"`
+	Name            string            `json:"nme"`
+	Description     string            `json:"description"`
+	Vendor          string            `json:"vendor"`
+	Properties      map[string]string `json:"properties"`
+	Price           float32           `json:"price"`
+	AvailableAmount int               `json:"available_amount"`
+	Version         int               `json:"-"`
 }
 
 func (p Product) Validate() *validator.Validator {

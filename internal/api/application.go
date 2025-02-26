@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"AhmadAbdelrazik/arbun/internal/jsonlog"
+	"AhmadAbdelrazik/arbun/internal/pkg/jsonlog"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"context"
 	"errors"
