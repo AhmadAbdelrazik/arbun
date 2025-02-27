@@ -9,11 +9,12 @@ type Model struct {
 }
 
 func NewModel() *Model {
+	product := newProductModel()
 	return &Model{
-		Products: newProductModel(),
+		Products: product,
 		Tokens:   newTokenModel(),
 		Carts:    newCartModel(),
-		Orders:   newOrderModel(),
+		Orders:   newOrderModel(product),
 		Users:    newUserModel(),
 	}
 }

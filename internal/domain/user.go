@@ -32,7 +32,7 @@ func (u *User) Validate() *validator.Validator {
 	v.Check(u.Email != "", "email", "must not be empty")
 	v.Check(v.Matches(u.Email, *validator.EmailRX), "email", "must be a valid email address")
 
-	u.Password.Validate(v)
+	v.Add(u.Password.Validate())
 
 	return v.Err()
 }
@@ -42,7 +42,8 @@ type Password struct {
 	hash      []byte
 }
 
-func (p *Password) Validate(v *validator.Validator) {
+func (p *Password) Validate() *validator.Validator {
+	v := validator.New()
 	if p.plaintext != nil {
 		password := *p.plaintext
 		v.Check(password != "", "password", "must not be empty")
@@ -53,6 +54,8 @@ func (p *Password) Validate(v *validator.Validator) {
 	if p.hash == nil {
 		panic("missing password hash for user")
 	}
+
+	return v.Err()
 }
 
 func (p *Password) Set(password string) error {

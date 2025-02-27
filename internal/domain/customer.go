@@ -11,14 +11,37 @@ type Address struct {
 	AdditionalInfo string `json:"additional_info"`
 }
 
+type MobilePhone string
+
+func (p MobilePhone) Validate() *validator.Validator {
+	v := validator.New()
+	v.Check(v.Matches(string(p), *validator.EgyPhoneNumbersRX), "mobile_phone", "invalid mobile phone")
+	return v.Err()
+}
+
+func (a Address) Validate() *validator.Validator {
+	v := validator.New()
+
+	v.Check(a.Governorate != "", "governorate", "must not be empty")
+	v.Check(a.City != "", "city", "must not be empty")
+	v.Check(a.Street != "", "street", "must not be empty")
+	v.Check(len(a.AdditionalInfo) < 1000, "additional info", "must be less than 1000 bytes")
+
+	return v.Err()
+}
+
 type Customer struct {
 	User
-	Address     Address `json:"address"`
-	MobilePhone string  `json:"mobile_phone"`
+	Address     Address     `json:"address"`
+	MobilePhone MobilePhone `json:"mobile_phone"`
 }
 
 func (c Customer) Validate() *validator.Validator {
 	v := validator.New()
-	c.User.Validate()
+
+	v.Add(c.User.Validate())
+	v.Add(c.Address.Validate())
+	v.Add(c.MobilePhone.Validate())
+
 	return v.Err()
 }

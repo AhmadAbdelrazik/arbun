@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	EmailRX           = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	EgyPhoneNumbersRX = regexp.MustCompile("^(\\+20|0)1[0125]\\d{8}$")
 )
 
 type Validator struct {
@@ -59,4 +60,13 @@ func (v *Validator) In(item string, items ...string) bool {
 	}
 
 	return false
+}
+
+func (v *Validator) Add(vv *Validator) {
+	if vv == nil {
+		return
+	}
+	for key, value := range vv.Errors {
+		v.AddError(key, value)
+	}
 }

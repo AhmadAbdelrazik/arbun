@@ -3,6 +3,7 @@ package models
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"errors"
+	"fmt"
 )
 
 var (
@@ -10,22 +11,47 @@ var (
 )
 
 type OrderModel struct {
+	products  *ProductModel
 	orders    []domain.Order
 	idCounter int64
 }
 
-func newOrderModel() *OrderModel {
+func newOrderModel(products *ProductModel) *OrderModel {
 	return &OrderModel{
 		orders:    make([]domain.Order, 0),
 		idCounter: 1,
+		products:  products,
 	}
 }
 
-func (m *OrderModel) Create(o domain.Order) error {
-	o.ID = m.idCounter
+func (m *OrderModel) Create(order domain.Order) (domain.Order, error) {
+	committedChanges := make(map[int64]int)
+
+	for _, item := range order.Cart.Items {
+		err := m.products.ChangeProductAmountBy(item.ProductID, -item.Amount)
+		if err != nil {
+			for productID, amount := range committedChanges {
+				err := m.products.ChangeProductAmountBy(productID, amount)
+				if err != nil {
+					panic(err)
+				}
+			}
+
+			return domain.Order{}, fmt.Errorf(
+				"product %s with id %d: %w",
+				item.Name,
+				item.ProductID,
+				ErrInsufficientProductAmount,
+			)
+		}
+		committedChanges[item.ProductID] = item.Amount
+	}
+
+	order.ID = m.idCounter
 	m.idCounter++
-	m.orders = append(m.orders, o)
-	return nil
+	m.orders = append(m.orders, order)
+
+	return order, nil
 }
 
 func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
@@ -39,13 +65,12 @@ func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
 }
 
 func (m *OrderModel) GetAll(customerID int64) ([]domain.Order, error) {
-	// orders := make([]domain.Order, 0, 10)
-	// for _, o := range orders {
-	// 	if o.Customer.ID == customerID {
-	// 		orders = append(orders, o)
-	// 	}
-	// }
-	//
-	// return orders, nil
-	return nil, nil
+	orders := make([]domain.Order, 0, 10)
+	for _, o := range orders {
+		if o.CustomerID == customerID {
+			orders = append(orders, o)
+		}
+	}
+
+	return orders, nil
 }

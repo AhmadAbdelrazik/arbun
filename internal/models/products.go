@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	ErrDuplicateProduct = errors.New("duplicate product")
-	ErrProductNotFound  = errors.New("product not found")
-	ErrEditConflict     = errors.New("edit conflict")
+	ErrDuplicateProduct          = errors.New("duplicate product")
+	ErrProductNotFound           = errors.New("product not found")
+	ErrEditConflict              = errors.New("edit conflict")
+	ErrInsufficientProductAmount = errors.New("insufficient amount")
 )
 
 type ProductModel struct {
@@ -52,6 +53,28 @@ func (m *ProductModel) GetProductByID(id int64) (domain.Product, error) {
 
 func (m *ProductModel) GetAllProducts() ([]domain.Product, error) {
 	return m.products, nil
+}
+
+func (m *ProductModel) ChangeProductAmountBy(productID int64, amount int) error {
+	product, err := m.GetProductByID(productID)
+	if err != nil {
+		return err
+	}
+
+	return m.ChangeProductAmountTo(productID, product.AvailableAmount+amount)
+}
+
+func (m *ProductModel) ChangeProductAmountTo(productID int64, amount int) error {
+	if amount < 0 {
+		return ErrInsufficientProductAmount
+	}
+	for i := range m.products {
+		if m.products[i].ID == productID {
+			m.products[i].AvailableAmount = amount
+			return nil
+		}
+	}
+	return ErrProductNotFound
 }
 
 func (m *ProductModel) UpdateProduct(p domain.Product) (domain.Product, error) {
