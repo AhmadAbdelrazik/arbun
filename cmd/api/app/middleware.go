@@ -54,7 +54,8 @@ func (app *Application) isUser(userType string, next http.HandlerFunc) http.Hand
 		}
 
 		if user.Type != userType {
-
+			app.unauthorizedResponse(w, r)
+			return
 		}
 
 		r = app.contextSetUser(r, user)

@@ -54,6 +54,17 @@ func (m *OrderModel) Create(order domain.Order) (domain.Order, error) {
 	return order, nil
 }
 
+func (m *OrderModel) Update(orderID int64, status string) error {
+	for i, order := range m.orders {
+		if order.ID == orderID {
+			m.orders[i].Status = status
+			return nil
+		}
+	}
+
+	return ErrOrderNotFound
+}
+
 func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
 	for _, o := range m.orders {
 		if o.ID == orderID {

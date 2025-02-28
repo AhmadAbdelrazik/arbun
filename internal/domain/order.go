@@ -10,6 +10,7 @@ const (
 
 	StatusDispatched = "dispatched"
 	StatusCompleted  = "completed"
+	StatusCanceled   = "canceled"
 )
 
 type Order struct {

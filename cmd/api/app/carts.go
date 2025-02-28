@@ -1,14 +1,13 @@
 package app
 
 import (
-	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
 )
 
 func (app *Application) getCart(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.User)
+	customer := app.contextGetCustomer(r)
 
 	cart, err := app.services.Carts.GetCart(customer.ID)
 	if err != nil {
@@ -23,7 +22,7 @@ func (app *Application) getCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) postCartItems(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.User)
+	customer := app.contextGetCustomer(r)
 
 	var input struct {
 		Items []services.InputItem `json:"items"`
@@ -57,7 +56,7 @@ func (app *Application) postCartItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) deleteCartItem(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.User)
+	customer := app.contextGetCustomer(r)
 
 	var input struct {
 		ProductID int64 `json:"product_id"`

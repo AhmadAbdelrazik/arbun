@@ -11,14 +11,6 @@ type Address struct {
 	AdditionalInfo string `json:"additional_info"`
 }
 
-type MobilePhone string
-
-func (p MobilePhone) Validate() *validator.Validator {
-	v := validator.New()
-	v.Check(v.Matches(string(p), *validator.EgyPhoneNumbersRX), "mobile_phone", "invalid mobile phone")
-	return v.Err()
-}
-
 func (a Address) Validate() *validator.Validator {
 	v := validator.New()
 
@@ -27,6 +19,14 @@ func (a Address) Validate() *validator.Validator {
 	v.Check(a.Street != "", "street", "must not be empty")
 	v.Check(len(a.AdditionalInfo) < 1000, "additional info", "must be less than 1000 bytes")
 
+	return v.Err()
+}
+
+type MobilePhone string
+
+func (p MobilePhone) Validate() *validator.Validator {
+	v := validator.New()
+	v.Check(v.Matches(string(p), *validator.EgyPhoneNumbersRX), "mobile_phone", "invalid mobile phone")
 	return v.Err()
 }
 

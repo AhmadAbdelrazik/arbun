@@ -3,6 +3,7 @@ package app
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/pkg/assert"
+	"AhmadAbdelrazik/arbun/internal/services"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -185,4 +186,15 @@ func AddProduct(t *testing.T, ts *TestClient, p domain.Product, adminCookie *htt
 	res, err := ts.PostWithCookies("/products", toPostProduct(p), adminCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, res.StatusCode, http.StatusCreated)
+}
+
+func AddToCart(t *testing.T, ts *TestClient, items []services.InputItem, cookie *http.Cookie) {
+	cartItems := struct {
+		Items []services.InputItem `json:"items"`
+	}{
+		Items: items,
+	}
+	res, err := ts.PostWithCookies("/cart", cartItems, cookie)
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, http.StatusOK)
 }

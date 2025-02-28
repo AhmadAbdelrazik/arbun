@@ -8,20 +8,21 @@ import (
 )
 
 func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
-	user := app.contextGetUser(r).(domain.User)
+	customer := app.contextGetCustomer(r)
 
 	var input struct {
 		DeliveryAddress domain.Address `json:"address"`
 		MobilePhone     string         `json:"mobile_phone"`
 	}
 
-	readJSON(w, r, &input)
-
-	customer := domain.Customer{
-		User:        user,
-		Address:     input.DeliveryAddress,
-		MobilePhone: domain.MobilePhone(input.MobilePhone),
+	err := readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
 	}
+
+	customer.Address = input.DeliveryAddress
+	customer.MobilePhone = domain.MobilePhone(input.MobilePhone)
 
 	v := customer.Validate()
 	if v != nil {
@@ -35,14 +36,14 @@ func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = writeJSON(w, http.StatusOK, envelope{"order": order}, nil)
+	err = writeJSON(w, http.StatusCreated, envelope{"order": order}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetCustomer(r)
 	orderID, err := readIDParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -67,7 +68,7 @@ func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) getAllOrders(w http.ResponseWriter, r *http.Request) {
-	customer := app.contextGetUser(r).(domain.Customer)
+	customer := app.contextGetCustomer(r)
 
 	orders, err := app.services.Orders.GetAllUserOrders(customer)
 	if err != nil {

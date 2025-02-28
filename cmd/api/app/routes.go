@@ -21,5 +21,10 @@ func (app *Application) routes() http.Handler {
 	mux.HandleFunc("POST /cart", app.isCustomer(app.postCartItems))
 	mux.HandleFunc("PATCH /cart", app.isCustomer(app.postCartItems))
 	mux.HandleFunc("DELETE /cart", app.isCustomer(app.deleteCartItem))
+
+	mux.HandleFunc("POST /checkout", app.isCustomer(app.postOrder))
+	mux.HandleFunc("GET /orders", app.isCustomer(app.getAllOrders))
+	mux.HandleFunc("GET /orders/{id}", app.isCustomer(app.getOrder))
+
 	return app.recoverPanic(securityHeaders(mux))
 }

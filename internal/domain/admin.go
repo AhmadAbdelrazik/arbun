@@ -10,6 +10,8 @@ type Admin struct {
 
 func (a Admin) Validate() *validator.Validator {
 	v := validator.New()
-	a.User.Validate()
+
+	v.Add(a.User.Validate())
+
 	return v.Err()
 }
