@@ -54,28 +54,6 @@ func (s *OrderService) returnItems(cart domain.Cart) {
 	}
 }
 
-func (s *OrderService) ChangeOrderStatus(customerID, orderID int64, status domain.OrderStatus) error {
-	order, err := s.models.Orders.Get(orderID)
-	if err != nil {
-		return fmt.Errorf("CancelOrder: %w", err)
-	}
-
-	if order.CustomerID != customerID {
-		return ErrOrderNotFound
-	}
-
-	if status == domain.StatusCanceled {
-		s.returnItems(order.Cart)
-	}
-
-	err = s.models.Orders.Update(orderID, status)
-	if err != nil {
-		return fmt.Errorf("CancelOrder: %w", err)
-	}
-
-	return nil
-}
-
 func (s *OrderService) GetOrder(customer domain.Customer, orderID int64) (domain.Order, error) {
 	order, err := s.models.Orders.Get(orderID)
 	if err != nil {
@@ -101,4 +79,27 @@ func (s *OrderService) GetAllUserOrders(customer domain.Customer) ([]domain.Orde
 	}
 
 	return orders, nil
+}
+
+func (s *OrderService) ChangeOrderStatus(orderID int64, status domain.OrderStatus) error {
+	order, err := s.models.Orders.Get(orderID)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrOrderNotFound):
+			return ErrOrderNotFound
+		default:
+			return fmt.Errorf("GetOrder: %w", err)
+		}
+	}
+
+	if status == domain.StatusCanceled {
+		s.returnItems(order.Cart)
+	}
+
+	err = s.models.Orders.Update(orderID, status)
+	if err != nil {
+		return fmt.Errorf("CancelOrder: %w", err)
+	}
+
+	return nil
 }

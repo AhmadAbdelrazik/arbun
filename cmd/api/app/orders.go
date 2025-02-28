@@ -68,9 +68,6 @@ func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) patchOrder(w http.ResponseWriter, r *http.Request) {
-	// get customer
-	customer := app.contextGetCustomer(r)
-
 	// read order ID parameter
 	id, err := readIDParam(r, "id")
 	if err != nil {
@@ -97,7 +94,7 @@ func (app *Application) patchOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// change order status
-	err = app.services.Orders.ChangeOrderStatus(customer.ID, id, status)
+	err = app.services.Orders.ChangeOrderStatus(id, status)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrOrderNotFound):
@@ -128,5 +125,4 @@ func (app *Application) getAllOrders(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
-
 }

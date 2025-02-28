@@ -25,6 +25,7 @@ func (app *Application) routes() http.Handler {
 	mux.HandleFunc("POST /checkout", app.isCustomer(app.postOrder))
 	mux.HandleFunc("GET /orders", app.isCustomer(app.getAllOrders))
 	mux.HandleFunc("GET /orders/{id}", app.isCustomer(app.getOrder))
+	mux.HandleFunc("PATCH /orders/{id}", app.isAdmin(app.patchOrder))
 
 	return app.recoverPanic(securityHeaders(mux))
 }

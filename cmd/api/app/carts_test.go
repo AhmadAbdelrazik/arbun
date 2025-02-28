@@ -11,7 +11,8 @@ import (
 func TestCart(t *testing.T) {
 	ts := NewTestClient()
 	defer ts.Close()
-	customerCookie := InitializeCartTest(t, ts)
+	cookies := InitializeCartTest(t, ts)
+	customerCookie := cookies[0]
 	t.Run("GetEmptyCart", func(t *testing.T) {
 		GetEmptyCart(t, ts, customerCookie)
 	})
@@ -126,7 +127,7 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Equal(t, responseBody.Cart.Price, 11)
 }
 
-func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
+func InitializeCartTest(t *testing.T, ts *TestClient) []*http.Cookie {
 	var admin1 domain.Admin
 	admin1.Name = "admin1"
 	admin1.Email = "admin1@example.com"
@@ -164,5 +165,5 @@ func InitializeCartTest(t *testing.T, ts *TestClient) *http.Cookie {
 	customer1.Email = "customer1@example.com"
 	customerCookie := AddCustomer(t, ts, customer1, "password1")
 
-	return customerCookie
+	return []*http.Cookie{customerCookie, adminCookie}
 }

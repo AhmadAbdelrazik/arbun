@@ -77,7 +77,7 @@ func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
 
 func (m *OrderModel) GetAll(customerID int64) ([]domain.Order, error) {
 	orders := make([]domain.Order, 0, 10)
-	for _, o := range orders {
+	for _, o := range m.orders {
 		if o.CustomerID == customerID {
 			orders = append(orders, o)
 		}
