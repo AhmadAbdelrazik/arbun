@@ -54,7 +54,7 @@ func (m *OrderModel) Create(order domain.Order) (domain.Order, error) {
 	return order, nil
 }
 
-func (m *OrderModel) Update(orderID int64, status string) error {
+func (m *OrderModel) Update(orderID int64, status domain.OrderStatus) error {
 	for i, order := range m.orders {
 		if order.ID == orderID {
 			m.orders[i].Status = status

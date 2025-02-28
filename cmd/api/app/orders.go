@@ -67,6 +67,54 @@ func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *Application) patchOrder(w http.ResponseWriter, r *http.Request) {
+	// get customer
+	customer := app.contextGetCustomer(r)
+
+	// read order ID parameter
+	id, err := readIDParam(r, "id")
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// parse status name from body
+	var input struct {
+		Status string `json:"status"`
+	}
+	err = readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// validate status
+	status := domain.OrderStatus(input.Status)
+	v := status.Validate()
+	if v != nil {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// change order status
+	err = app.services.Orders.ChangeOrderStatus(customer.ID, id, status)
+	if err != nil {
+		switch {
+		case errors.Is(err, services.ErrOrderNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// response
+	err = writeJSON(w, http.StatusOK, envelope{"status": "order status updated"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 func (app *Application) getAllOrders(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetCustomer(r)
 

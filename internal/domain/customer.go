@@ -26,7 +26,7 @@ type MobilePhone string
 
 func (p MobilePhone) Validate() *validator.Validator {
 	v := validator.New()
-	v.Check(v.Matches(string(p), *validator.EgyPhoneNumbersRX), "mobile_phone", "invalid mobile phone")
+	v.Check(validator.Matches(string(p), *validator.EgyPhoneNumbersRX), "mobile_phone", "invalid mobile phone")
 	return v.Err()
 }
 

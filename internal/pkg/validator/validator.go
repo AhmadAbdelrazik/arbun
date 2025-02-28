@@ -1,14 +1,6 @@
 package validator
 
-import (
-	"fmt"
-	"regexp"
-)
-
-var (
-	EmailRX           = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	EgyPhoneNumbersRX = regexp.MustCompile("^(\\+20|0)1[0125]\\d{8}$")
-)
+import "fmt"
 
 type Validator struct {
 	Errors map[string]string
@@ -46,20 +38,6 @@ func (v *Validator) Err() *Validator {
 	} else {
 		return v
 	}
-}
-
-func (v *Validator) Matches(word string, regex regexp.Regexp) bool {
-	return regex.MatchString(word)
-}
-
-func (v *Validator) In(item string, items ...string) bool {
-	for _, i := range items {
-		if i == item {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (v *Validator) Add(vv *Validator) {

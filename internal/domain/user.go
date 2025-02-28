@@ -30,7 +30,7 @@ func (u *User) Validate() *validator.Validator {
 	v.Check(len(u.Name) <= 40, "full_name", "must not be more than 40")
 
 	v.Check(u.Email != "", "email", "must not be empty")
-	v.Check(v.Matches(u.Email, *validator.EmailRX), "email", "must be a valid email address")
+	v.Check(validator.Matches(u.Email, *validator.EmailRX), "email", "must be a valid email address")
 
 	v.Add(u.Password.Validate())
 

@@ -48,17 +48,27 @@ func (s *OrderService) CreateOrder(customer domain.Customer, cartService *CartSe
 	return order, nil
 }
 
-func (s *OrderService) CancelOrder(orderID int64) error {
+func (s *OrderService) returnItems(cart domain.Cart) {
+	for _, item := range cart.Items {
+		s.models.Products.ChangeProductAmountBy(item.ProductID, item.Amount)
+	}
+}
+
+func (s *OrderService) ChangeOrderStatus(customerID, orderID int64, status domain.OrderStatus) error {
 	order, err := s.models.Orders.Get(orderID)
 	if err != nil {
 		return fmt.Errorf("CancelOrder: %w", err)
 	}
 
-	for _, item := range order.Cart.Items {
-		s.models.Products.ChangeProductAmountBy(item.ProductID, item.Amount)
+	if order.CustomerID != customerID {
+		return ErrOrderNotFound
 	}
 
-	err = s.models.Orders.Update(orderID, domain.StatusCanceled)
+	if status == domain.StatusCanceled {
+		s.returnItems(order.Cart)
+	}
+
+	err = s.models.Orders.Update(orderID, status)
 	if err != nil {
 		return fmt.Errorf("CancelOrder: %w", err)
 	}
