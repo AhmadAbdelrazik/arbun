@@ -3,7 +3,6 @@ package app
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/pkg/assert"
-	"AhmadAbdelrazik/arbun/internal/services"
 	"net/http"
 	"testing"
 	"time"
@@ -135,7 +134,7 @@ func InitializeOrderTest(t *testing.T, ts *TestClient) []*http.Cookie {
 	cookies := InitializeCartTest(t, ts)
 	customerCookie := cookies[0]
 
-	items := []services.InputItem{
+	items := []domain.CartItem{
 		{
 			ProductID: 1,
 			Amount:    2,

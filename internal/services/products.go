@@ -89,12 +89,17 @@ func updateProductFields(newProduct, oldProduct domain.Product) domain.Product {
 }
 
 func (p *ProductService) UpdateProduct(update domain.Product) (domain.Product, error) {
-	oldProduct, err := p.GetProductByID(update.ID)
+	product, err := p.GetProductByID(update.ID)
 	if err != nil {
 		return domain.Product{}, fmt.Errorf("update product: %w", err)
 	}
 
-	updatedProduct := updateProductFields(update, oldProduct)
+	updatedProduct := updateProductFields(update, product)
+
+	v := updatedProduct.Validate()
+	if v != nil {
+		return domain.Product{}, fmt.Errorf("update product: %w", err)
+	}
 
 	result, err := p.models.Products.UpdateProduct(updatedProduct)
 	if err != nil {

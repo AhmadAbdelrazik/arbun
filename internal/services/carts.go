@@ -49,34 +49,24 @@ func (c *CartService) GetCart(customerID int64) (domain.Cart, error) {
 	return userCart, nil
 }
 
-type InputItem struct {
-	ProductID int64 `json:"product_id"`
-	Amount    int   `json:"amount"`
-}
-
-type AddItemsParam struct {
-	CustomerID int64
-	Items      []InputItem
-}
-
 // UpdateItems - will add non existent items and set the items by productAmount
 // if item exists, then their amount will be productAmount
-func (c *CartService) UpdateItems(input AddItemsParam) (domain.Cart, error) {
-	// 1. check if items are legitimate
-	items, err := c.checkItems(input.Items)
+func (c *CartService) UpdateItems(customerID int64, items []domain.CartItem) (domain.Cart, error) {
+	// 1. check if items exists, and amounts are available
+	err := c.checkItems(items)
 	if err != nil {
 		return domain.Cart{}, fmt.Errorf("AddItems: %w", err)
 	}
 
 	// 2. Insert Items
 	for _, item := range items {
-		err := c.models.Carts.SetItem(input.CustomerID, item)
+		err := c.models.Carts.SetItem(customerID, item)
 		if err != nil {
 			return domain.Cart{}, fmt.Errorf("AddItems: %w", err)
 		}
 	}
 
-	return c.GetCart(input.CustomerID)
+	return c.GetCart(customerID)
 }
 
 func (c *CartService) DeleteItem(customerID, productID int64) (domain.Cart, error) {
@@ -88,20 +78,16 @@ func (c *CartService) DeleteItem(customerID, productID int64) (domain.Cart, erro
 	return c.GetCart(customerID)
 }
 
-func (c *CartService) checkItems(items []InputItem) ([]domain.CartItem, error) {
+func (c *CartService) checkItems(items []domain.CartItem) error {
 	if len(items) == 0 {
-		return nil, fmt.Errorf("checkItems: items are empty")
+		return fmt.Errorf("checkItems: items are empty")
 	}
-
-	result := make([]domain.CartItem, 0, len(items))
 
 	for _, item := range items {
 		product, err := c.models.Products.GetProductByID(item.ProductID)
 		if err != nil {
-			return nil, fmt.Errorf("checkItems: %w", ErrProductNotFound)
+			return fmt.Errorf("checkItems: %w", ErrProductNotFound)
 		}
-
-		cartItem := domain.CartItem{}
 
 		if product.AvailableAmount < item.Amount {
 			v := validator.New()
@@ -109,13 +95,9 @@ func (c *CartService) checkItems(items []InputItem) ([]domain.CartItem, error) {
 				fmt.Sprintf("product %v", item.ProductID),
 				fmt.Sprintf("available %v only", product.AvailableAmount),
 			)
-			return nil, v.Err()
+			return v.Err()
 		}
-
-		cartItem.Populate(product, item.Amount)
-
-		result = append(result, cartItem)
 	}
 
-	return result, nil
+	return nil
 }

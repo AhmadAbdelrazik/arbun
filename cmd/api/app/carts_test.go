@@ -3,7 +3,6 @@ package app
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/pkg/assert"
-	"AhmadAbdelrazik/arbun/internal/services"
 	"net/http"
 	"testing"
 
@@ -48,9 +47,9 @@ func GetEmptyCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 
 func PostCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	cartItems := struct {
-		Items []services.InputItem `json:"items"`
+		Items []domain.CartItem `json:"items"`
 	}{
-		Items: []services.InputItem{
+		Items: []domain.CartItem{
 			{
 				ProductID: 1,
 				Amount:    2,

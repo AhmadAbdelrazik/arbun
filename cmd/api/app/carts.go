@@ -1,6 +1,7 @@
 package app
 
 import (
+	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
@@ -25,7 +26,7 @@ func (app *Application) postCartItems(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetCustomer(r)
 
 	var input struct {
-		Items []services.InputItem `json:"items"`
+		Items []domain.CartItem `json:"items"`
 	}
 
 	err := readJSON(w, r, &input)
@@ -34,11 +35,7 @@ func (app *Application) postCartItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param := services.AddItemsParam{
-		CustomerID: customer.ID,
-		Items:      input.Items,
-	}
-	cart, err := app.services.Carts.UpdateItems(param)
+	cart, err := app.services.Carts.UpdateItems(customer.ID, input.Items)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrProductNotFound):
