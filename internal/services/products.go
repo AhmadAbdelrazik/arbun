@@ -63,54 +63,40 @@ func (p *ProductService) GetAllProducts() ([]domain.Product, error) {
 	return products, nil
 }
 
-type UpdateProductParam struct {
-	ID              int64
-	Name            *string
-	Description     *string
-	Vendor          *string
-	Price           *float32
-	Properties      map[string]string
-	AvailableAmount *int
-}
+func updateProductFields(newProduct, oldProduct domain.Product) domain.Product {
+	result := oldProduct
 
-func (u *UpdateProductParam) updateProduct(product domain.Product) domain.Product {
-	result := product
-	if u.Name != nil {
-		result.Name = *u.Name
+	if newProduct.Name != "" {
+		result.Name = newProduct.Name
 	}
-	if u.Description != nil {
-		result.Description = *u.Description
+	if newProduct.Description != "" {
+		result.Description = newProduct.Description
 	}
-	if u.Vendor != nil {
-		result.Vendor = *u.Vendor
+	if newProduct.Vendor != "" {
+		result.Vendor = newProduct.Vendor
 	}
-	if u.AvailableAmount != nil {
-		result.AvailableAmount = *u.AvailableAmount
+	if newProduct.Properties != nil {
+		result.Properties = newProduct.Properties
 	}
-	if u.Price != nil {
-		result.Price = *u.Price
+	if newProduct.Price != nil {
+		result.Price = newProduct.Price
 	}
-	if u.Properties != nil {
-		result.Properties = u.Properties
+	if newProduct.AvailableAmount != 0 {
+		result.AvailableAmount = newProduct.AvailableAmount
 	}
 
 	return result
 }
 
-func (p *ProductService) UpdateProduct(param UpdateProductParam) (domain.Product, error) {
-	fetchedProduct, err := p.GetProductByID(param.ID)
+func (p *ProductService) UpdateProduct(update domain.Product) (domain.Product, error) {
+	oldProduct, err := p.GetProductByID(update.ID)
 	if err != nil {
 		return domain.Product{}, fmt.Errorf("update product: %w", err)
 	}
 
-	prod := param.updateProduct(fetchedProduct)
+	updatedProduct := updateProductFields(update, oldProduct)
 
-	v := prod.Validate()
-	if v != nil {
-		return domain.Product{}, v
-	}
-
-	updatedProduct, err := p.models.Products.UpdateProduct(prod)
+	result, err := p.models.Products.UpdateProduct(updatedProduct)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrEditConflict):
@@ -120,7 +106,7 @@ func (p *ProductService) UpdateProduct(param UpdateProductParam) (domain.Product
 		}
 	}
 
-	return updatedProduct, nil
+	return result, nil
 }
 
 func (p *ProductService) DeleteProduct(id int64) error {

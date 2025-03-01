@@ -5,6 +5,8 @@ import (
 	"AhmadAbdelrazik/arbun/internal/models"
 	"AhmadAbdelrazik/arbun/internal/pkg/validator"
 	"fmt"
+
+	"github.com/Rhymond/go-money"
 )
 
 type CartService struct {
@@ -25,6 +27,7 @@ func (c *CartService) GetCart(customerID int64) (domain.Cart, error) {
 
 	userCart := domain.Cart{
 		Items: make([]domain.CartItem, 0, len(items)),
+		Price: money.New(0, money.EGP),
 	}
 
 	for _, item := range items {
@@ -36,7 +39,10 @@ func (c *CartService) GetCart(customerID int64) (domain.Cart, error) {
 		cartItem := domain.CartItem{}
 		cartItem.Populate(product, item.Amount)
 
-		userCart.Price += cartItem.TotalPrice
+		userCart.Price, err = userCart.Price.Add(cartItem.TotalPrice)
+		if err != nil {
+			return domain.Cart{}, fmt.Errorf("getCartItems: %w", err)
+		}
 		userCart.Items = append(userCart.Items, cartItem)
 	}
 

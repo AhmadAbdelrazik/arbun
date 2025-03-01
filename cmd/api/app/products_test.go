@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+
+	"github.com/Rhymond/go-money"
 )
 
 func TestProduct(t *testing.T) {
@@ -24,7 +26,7 @@ func TestProduct(t *testing.T) {
 			Vendor:          "vendor 1",
 			AvailableAmount: 5,
 			Version:         1,
-			Price:           23.99,
+			Price:           money.New(2399, money.EGP),
 			Properties: map[string]string{
 				"size": "12",
 			},
@@ -35,7 +37,7 @@ func TestProduct(t *testing.T) {
 			Description:     "description of product 2",
 			Vendor:          "vendor 1",
 			AvailableAmount: 8,
-			Price:           18.99,
+			Price:           money.New(1899, money.EGP),
 			Version:         1,
 			Properties: map[string]string{
 				"size": "14",
@@ -121,13 +123,7 @@ func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, produc
 		newProduct.AvailableAmount = 53
 		newProduct.Version++
 
-		reqBody := patchProductInput{
-			Name:            &newProduct.Name,
-			Description:     &newProduct.Description,
-			AvailableAmount: &newProduct.AvailableAmount,
-		}
-
-		res, err := ts.PatchWithCookies("/products/1", reqBody, adminCookie)
+		res, err := ts.PatchWithCookies("/products/1", toPostProduct(newProduct), adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -145,13 +141,7 @@ func patchProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie, produc
 		newProduct.AvailableAmount = 53
 		newProduct.Version++
 
-		reqBody := patchProductInput{
-			Name:            &newProduct.Name,
-			Description:     &newProduct.Description,
-			AvailableAmount: &newProduct.AvailableAmount,
-		}
-
-		res, err := ts.PatchWithCookies("/products/3", reqBody, adminCookie)
+		res, err := ts.PatchWithCookies("/products/3", toPostProduct(newProduct), adminCookie)
 		assert.Nil(t, err)
 
 		var responseBody struct {
@@ -190,12 +180,12 @@ func deleteProduct(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 }
 
 type PostProduct struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Properties  map[string]string `json:"properties"`
-	Vendor      string            `json:"vendor"`
-	Amount      int               `json:"amount"`
-	Price       float32           `json:"price"`
+	Name        string            `json:"name,omitempty"`
+	Description string            `json:"description,omitempty"`
+	Properties  map[string]string `json:"properties,omitempty"`
+	Vendor      string            `json:"vendor,omitempty"`
+	Amount      int               `json:"amount,omitempty"`
+	Price       *money.Money      `json:"price,omitempty"`
 }
 
 func toPostProduct(p domain.Product) PostProduct {
@@ -234,7 +224,7 @@ func invalidPost(t *testing.T, ts *TestClient, adminCookie *http.Cookie) {
 		Description:     "description of product 2",
 		Vendor:          "vendor 1",
 		AvailableAmount: 4,
-		Price:           23.99,
+		Price:           money.New(2399, money.EGP),
 		Version:         1,
 		Properties: map[string]string{
 			"size": "14",

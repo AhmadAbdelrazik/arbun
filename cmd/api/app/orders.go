@@ -11,8 +11,10 @@ func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 	customer := app.contextGetCustomer(r)
 
 	var input struct {
-		DeliveryAddress domain.Address `json:"address"`
-		MobilePhone     string         `json:"mobile_phone"`
+		DeliveryAddress domain.Address       `json:"address"`
+		MobilePhone     domain.MobilePhone   `json:"mobile_phone"`
+		PaymentMethod   domain.PaymentMethod `json:"payment_method"`
+		Properties      map[string]string    `json:"properties"`
 	}
 
 	err := readJSON(w, r, &input)
@@ -21,10 +23,16 @@ func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	customer.Address = input.DeliveryAddress
-	customer.MobilePhone = domain.MobilePhone(input.MobilePhone)
+	v := input.PaymentMethod.Validate()
+	if v != nil {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 
-	v := customer.Validate()
+	customer.Address = input.DeliveryAddress
+	customer.MobilePhone = input.MobilePhone
+
+	v = customer.Validate()
 	if v != nil {
 		app.failedValidationResponse(w, r, v.Errors)
 		return

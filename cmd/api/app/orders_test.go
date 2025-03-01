@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/Rhymond/go-money"
 )
 
 func TestOrders(t *testing.T) {
@@ -18,7 +20,7 @@ func TestOrders(t *testing.T) {
 
 	t.Run("place order", func(t *testing.T) {
 		t.Run("valid order", func(t *testing.T) {
-			validOrder(t, ts, customerCookie)
+			validCashOrder(t, ts, customerCookie)
 		})
 		t.Run("invalid order", func(t *testing.T) {
 			invalidOrder(t, ts, customerCookie)
@@ -38,10 +40,11 @@ func TestOrders(t *testing.T) {
 	})
 }
 
-func validOrder(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
+func validCashOrder(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	var input struct {
-		DeliveryAddress domain.Address `json:"address"`
-		MobilePhone     string         `json:"mobile_phone"`
+		DeliveryAddress domain.Address       `json:"address"`
+		MobilePhone     domain.MobilePhone   `json:"mobile_phone"`
+		PaymentMethod   domain.PaymentMethod `json:"payment_method"`
 	}
 
 	input.DeliveryAddress.Governorate = "Test Governorate"
@@ -49,6 +52,7 @@ func validOrder(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	input.DeliveryAddress.Street = "Test Street"
 	input.DeliveryAddress.AdditionalInfo = "Test Additional Info"
 	input.MobilePhone = "01234567890"
+	input.PaymentMethod = domain.PaymentCash
 
 	res, err := ts.PostWithCookies("/checkout", input, customerCookie)
 
@@ -63,10 +67,12 @@ func validOrder(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, response.Order.Address, input.DeliveryAddress)
-	assert.Equal(t, string(response.Order.MobilePhone), input.MobilePhone)
+	assert.Equal(t, response.Order.MobilePhone, input.MobilePhone)
 	assert.Equal(t, response.Order.PaymentType, domain.PaymentCash)
 	assert.Equal(t, len(response.Order.Cart.Items), 3)
-	assert.Equal(t, response.Order.Cart.Price, 158)
+	equal, err := response.Order.Cart.Price.Equals(money.New(15800, money.EGP))
+	assert.True(t, equal)
+	assert.Nil(t, err)
 	assert.Equal(t, response.Order.Status, domain.StatusDispatched)
 	assert.True(t, response.Order.CreatedAt.Before(time.Now()))
 }
@@ -173,7 +179,9 @@ func getOrder(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 		assert.Equal(t, string(response.Order.MobilePhone), mobilePhone)
 		assert.Equal(t, response.Order.PaymentType, domain.PaymentCash)
 		assert.Equal(t, len(response.Order.Cart.Items), 3)
-		assert.Equal(t, response.Order.Cart.Price, 158)
+		equal, err := response.Order.Cart.Price.Equals(money.New(15800, money.EGP))
+		assert.True(t, equal)
+		assert.Nil(t, err)
 		assert.Equal(t, response.Order.Status, domain.StatusDispatched)
 		assert.True(t, response.Order.CreatedAt.Before(time.Now()))
 	})
@@ -221,7 +229,9 @@ func getOrders(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Equal(t, string(order.MobilePhone), mobilePhone)
 	assert.Equal(t, order.PaymentType, domain.PaymentCash)
 	assert.Equal(t, len(order.Cart.Items), 3)
-	assert.Equal(t, order.Cart.Price, 158)
+	equal, err := order.Cart.Price.Equals(money.New(15800, money.EGP))
+	assert.True(t, equal)
+	assert.Nil(t, err)
 	assert.Equal(t, order.Status, domain.StatusDispatched)
 	assert.True(t, order.CreatedAt.Before(time.Now()))
 }
@@ -277,7 +287,10 @@ func validStatusChange(t *testing.T, ts *TestClient, customerCookie, adminCookie
 	assert.Equal(t, string(response.Order.MobilePhone), mobilePhone)
 	assert.Equal(t, response.Order.PaymentType, domain.PaymentCash)
 	assert.Equal(t, len(response.Order.Cart.Items), 3)
-	assert.Equal(t, response.Order.Cart.Price, 158)
+	equal, err := response.Order.Cart.Price.Equals(money.New(15800, money.EGP))
+	assert.True(t, equal)
+	assert.Nil(t, err)
+
 	assert.Equal(t, response.Order.Status, domain.StatusCanceled)
 	assert.True(t, response.Order.CreatedAt.Before(time.Now()))
 }

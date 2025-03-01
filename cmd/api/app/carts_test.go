@@ -6,6 +6,8 @@ import (
 	"AhmadAbdelrazik/arbun/internal/services"
 	"net/http"
 	"testing"
+
+	"github.com/Rhymond/go-money"
 )
 
 func TestCart(t *testing.T) {
@@ -32,7 +34,7 @@ func GetEmptyCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	var responseBody struct {
 		Cart struct {
 			Items []interface{} `json:"items"`
-			Price int           `json:"price"`
+			Price *money.Money  `json:"price"`
 		} `json:"cart"`
 	}
 
@@ -40,7 +42,8 @@ func GetEmptyCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, len(responseBody.Cart.Items), 0)
-	assert.Equal(t, responseBody.Cart.Price, 0)
+	assert.MoneyEqual(t, responseBody.Cart.Price, money.New(0, money.EGP))
+
 }
 
 func PostCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
@@ -65,13 +68,13 @@ func PostCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	var responseBody struct {
 		Cart struct {
 			Items []struct {
-				ProductID  int     `json:"product_id"`
-				Name       string  `json:"name"`
-				Amount     int     `json:"amount"`
-				ItemPrice  float32 `json:"item_price"`
-				TotalPrice float32 `json:"total_price"`
+				ProductID  int          `json:"product_id"`
+				Name       string       `json:"name"`
+				Amount     int          `json:"amount"`
+				ItemPrice  *money.Money `json:"item_price"`
+				TotalPrice *money.Money `json:"total_price"`
 			} `json:"items"`
-			Price float32 `json:"price"`
+			Price *money.Money `json:"price"`
 		} `json:"cart"`
 	}
 
@@ -81,14 +84,14 @@ func PostCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Equal(t, len(responseBody.Cart.Items), 2)
 
 	assert.Equal(t, responseBody.Cart.Items[0].Amount, 2)
-	assert.Equal(t, responseBody.Cart.Items[0].ItemPrice, 5.5)
-	assert.Equal(t, responseBody.Cart.Items[0].TotalPrice, 11)
+	assert.MoneyEqual(t, responseBody.Cart.Items[0].ItemPrice, money.New(550, money.EGP))
+	assert.MoneyEqual(t, responseBody.Cart.Items[0].TotalPrice, money.New(1100, money.EGP))
 
 	assert.Equal(t, responseBody.Cart.Items[1].Amount, 5)
-	assert.Equal(t, responseBody.Cart.Items[1].ItemPrice, 25.5)
-	assert.Equal(t, responseBody.Cart.Items[1].TotalPrice, 127.5)
+	assert.MoneyEqual(t, responseBody.Cart.Items[1].ItemPrice, money.New(2550, money.EGP))
+	assert.MoneyEqual(t, responseBody.Cart.Items[1].TotalPrice, money.New(12750, money.EGP))
 
-	assert.Equal(t, responseBody.Cart.Price, 138.5)
+	assert.MoneyEqual(t, responseBody.Cart.Price, money.New(13850, money.EGP))
 
 }
 
@@ -105,13 +108,13 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	var responseBody struct {
 		Cart struct {
 			Items []struct {
-				ProductID  int     `json:"product_id"`
-				Name       string  `json:"name"`
-				Amount     int     `json:"amount"`
-				ItemPrice  float32 `json:"item_price"`
-				TotalPrice float32 `json:"total_price"`
+				ProductID  int          `json:"product_id"`
+				Name       string       `json:"name"`
+				Amount     int          `json:"amount"`
+				ItemPrice  *money.Money `json:"item_price"`
+				TotalPrice *money.Money `json:"total_price"`
 			} `json:"items"`
-			Price float32 `json:"price"`
+			Price *money.Money `json:"price"`
 		} `json:"cart"`
 	}
 
@@ -121,10 +124,11 @@ func DeleteFromCart(t *testing.T, ts *TestClient, customerCookie *http.Cookie) {
 	assert.Equal(t, len(responseBody.Cart.Items), 1)
 
 	assert.Equal(t, responseBody.Cart.Items[0].Amount, 2)
-	assert.Equal(t, responseBody.Cart.Items[0].ItemPrice, 5.5)
-	assert.Equal(t, responseBody.Cart.Items[0].TotalPrice, 11)
 
-	assert.Equal(t, responseBody.Cart.Price, 11)
+	assert.MoneyEqual(t, responseBody.Cart.Items[0].ItemPrice, money.New(550, money.EGP))
+	assert.MoneyEqual(t, responseBody.Cart.Items[0].TotalPrice, money.New(1100, money.EGP))
+
+	assert.MoneyEqual(t, responseBody.Cart.Price, money.New(1100, money.EGP))
 }
 
 func InitializeCartTest(t *testing.T, ts *TestClient) []*http.Cookie {
@@ -139,21 +143,21 @@ func InitializeCartTest(t *testing.T, ts *TestClient) []*http.Cookie {
 		Description:     "description 1",
 		Vendor:          "vendor 1",
 		AvailableAmount: 10,
-		Price:           5.5,
+		Price:           money.New(550, money.EGP),
 	}
 	product2 := domain.Product{
 		Name:            "product 2",
 		Description:     "description 2",
 		Vendor:          "vendor 2",
 		AvailableAmount: 10,
-		Price:           25.5,
+		Price:           money.New(2550, money.EGP),
 	}
 	product3 := domain.Product{
 		Name:            "product 3",
 		Description:     "description 3",
 		Vendor:          "vendor 3",
 		AvailableAmount: 10,
-		Price:           15,
+		Price:           money.New(1500, money.EGP),
 	}
 
 	AddProduct(t, ts, product1, adminCookie)

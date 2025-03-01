@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	PaymentCash  PaymentType = "Cash"
-	PaymentDebit             = "Debit"
+	PaymentCash   PaymentMethod = "Cash"
+	PaymentCredit               = "Credit"
 
 	StatusDispatched OrderStatus = "dispatched"
 	StatusCompleted              = "completed"
@@ -15,14 +15,14 @@ const (
 )
 
 type Order struct {
-	ID          int64       `json:"id"`
-	CustomerID  int64       `json:"customer_id"`
-	CreatedAt   time.Time   `json:"created_at"`
-	Cart        Cart        `json:"cart"`
-	PaymentType PaymentType `json:"payment_type"`
-	Address     Address     `json:"address"`
-	MobilePhone MobilePhone `json:"mobile_phone"`
-	Status      OrderStatus `json:"status"`
+	ID          int64         `json:"id"`
+	CustomerID  int64         `json:"customer_id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	Cart        Cart          `json:"cart"`
+	PaymentType PaymentMethod `json:"payment_type"`
+	Address     Address       `json:"address"`
+	MobilePhone MobilePhone   `json:"mobile_phone"`
+	Status      OrderStatus   `json:"status"`
 }
 
 func (o Order) Validate() *validator.Validator {
@@ -36,14 +36,14 @@ func (o Order) Validate() *validator.Validator {
 	return v.Err()
 }
 
-type PaymentType string
+type PaymentMethod string
 
-func (p PaymentType) Validate() *validator.Validator {
+func (p PaymentMethod) Validate() *validator.Validator {
 	v := validator.New()
 
-	acceptedPayment := []PaymentType{
+	acceptedPayment := []PaymentMethod{
 		PaymentCash,
-		PaymentDebit,
+		PaymentCredit,
 	}
 
 	v.Check(validator.In(p, acceptedPayment...), "payment", "invalid payment type")
@@ -65,4 +65,11 @@ func (o OrderStatus) Validate() *validator.Validator {
 	v.Check(validator.In(o, acceptedStatuses...), "status", "invalid order status")
 
 	return v.Err()
+}
+
+type CreditCard struct {
+	Name       string `json:"name"`
+	Number     int    `json:"number"`
+	CCV        int    `json:"ccv"`
+	ExpiryDate string `json:"expiry_date"`
 }

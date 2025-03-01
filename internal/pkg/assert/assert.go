@@ -3,6 +3,8 @@ package assert
 import (
 	"errors"
 	"testing"
+
+	"github.com/Rhymond/go-money"
 )
 
 func Nil(t *testing.T, err error) {
@@ -43,4 +45,12 @@ func False(t *testing.T, condition bool) {
 	if condition != false {
 		t.Fatal("got:  true\nwant: false")
 	}
+}
+
+func MoneyEqual(t *testing.T, got, want *money.Money) {
+	t.Helper()
+
+	ok, err := got.Equals(want)
+	Nil(t, err)
+	True(t, ok)
 }

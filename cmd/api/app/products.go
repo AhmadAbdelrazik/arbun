@@ -6,6 +6,8 @@ import (
 	"AhmadAbdelrazik/arbun/internal/services"
 	"errors"
 	"net/http"
+
+	"github.com/Rhymond/go-money"
 )
 
 func (app *Application) postProduct(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +17,7 @@ func (app *Application) postProduct(w http.ResponseWriter, r *http.Request) {
 		Properties  map[string]string `json:"properties"`
 		Vendor      string            `json:"vendor"`
 		Amount      int               `json:"amount"`
-		Price       float32           `json:"price"`
+		Price       *money.Money      `json:"price"`
 	}
 	err := readJSON(w, r, &input)
 	if err != nil {
@@ -94,27 +96,6 @@ func (app *Application) getAllProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type patchProductInput struct {
-	Name            *string           `json:"name"`
-	Description     *string           `json:"description"`
-	Vendor          *string           `json:"vendor"`
-	Properties      map[string]string `json:"properties"`
-	AvailableAmount *int              `json:"available_amount"`
-	Price           *float32          `json:"price"`
-}
-
-func (p patchProductInput) GenerateParams(id int64) services.UpdateProductParam {
-	return services.UpdateProductParam{
-		ID:              id,
-		Name:            p.Name,
-		Description:     p.Description,
-		Vendor:          p.Vendor,
-		Properties:      p.Properties,
-		AvailableAmount: p.AvailableAmount,
-		Price:           p.Price,
-	}
-}
-
 func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "id")
 	if err != nil {
@@ -122,7 +103,14 @@ func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input patchProductInput
+	var input struct {
+		Name        string            `json:"name"`
+		Description string            `json:"description"`
+		Properties  map[string]string `json:"properties"`
+		Vendor      string            `json:"vendor"`
+		Amount      int               `json:"amount"`
+		Price       *money.Money      `json:"price"`
+	}
 
 	err = readJSON(w, r, &input)
 	if err != nil {
@@ -130,9 +118,17 @@ func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := input.GenerateParams(id)
+	p := domain.Product{
+		ID:              id,
+		Name:            input.Name,
+		Description:     input.Description,
+		Properties:      input.Properties,
+		Vendor:          input.Vendor,
+		Price:           input.Price,
+		AvailableAmount: input.Amount,
+	}
 
-	product, err := app.services.Products.UpdateProduct(params)
+	product, err := app.services.Products.UpdateProduct(p)
 	if err != nil {
 		var v *validator.Validator
 		switch {

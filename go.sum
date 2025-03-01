@@ -1,2 +1,4 @@
+github.com/Rhymond/go-money v1.0.14 h1:HtdIZ0mP4LrnpN3wdRhsik7pool7x22ILZdDe3moL6E=
+github.com/Rhymond/go-money v1.0.14/go.mod h1:iHvCuIvitxu2JIlAlhF0g9jHqjRSr+rpdOs7Omqlupg=
 golang.org/x/crypto v0.33.0 h1:IOBPskki6Lysi0lo9qQvbxiQ+FvsCC/YWOecCHAixus=
 golang.org/x/crypto v0.33.0/go.mod h1:bVdXmD7IV/4GdElGPozy6U7lWdRXA4qyRVGJV57uQ5M=
