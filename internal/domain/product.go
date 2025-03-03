@@ -15,6 +15,7 @@ type Product struct {
 	Properties      map[string]string `json:"properties,omitempty"`
 	Price           *money.Money      `json:"price,omitempty"`
 	AvailableAmount int               `json:"available_amount,omitempty"`
+	Images          []string          `json:"images,omitempty"`
 	Version         int               `json:"-"`
 }
 

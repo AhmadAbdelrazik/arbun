@@ -34,6 +34,7 @@ type Customer struct {
 	User
 	Address     Address     `json:"address"`
 	MobilePhone MobilePhone `json:"mobile_phone"`
+	StripeID    string      `json:"-"`
 }
 
 func (c Customer) Validate() *validator.Validator {

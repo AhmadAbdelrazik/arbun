@@ -18,6 +18,7 @@ func (app *Application) postProduct(w http.ResponseWriter, r *http.Request) {
 		Vendor      string            `json:"vendor"`
 		Amount      int               `json:"amount"`
 		Price       *money.Money      `json:"price"`
+		Images      []string          `json:"images"`
 	}
 	err := readJSON(w, r, &input)
 	if err != nil {
@@ -32,6 +33,7 @@ func (app *Application) postProduct(w http.ResponseWriter, r *http.Request) {
 		Vendor:          input.Vendor,
 		Price:           input.Price,
 		AvailableAmount: input.Amount,
+		Images:          input.Images,
 	}
 
 	v := p.Validate()
@@ -110,6 +112,7 @@ func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 		Vendor      string            `json:"vendor"`
 		Amount      int               `json:"amount"`
 		Price       *money.Money      `json:"price"`
+		Images      []string          `json:"images"`
 	}
 
 	err = readJSON(w, r, &input)
@@ -126,6 +129,7 @@ func (app *Application) patchProduct(w http.ResponseWriter, r *http.Request) {
 		Vendor:          input.Vendor,
 		Price:           input.Price,
 		AvailableAmount: input.Amount,
+		Images:          input.Images,
 	}
 
 	product, err := app.services.Products.UpdateProduct(p)
