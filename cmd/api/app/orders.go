@@ -38,7 +38,18 @@ func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := app.services.Orders.CreateOrder(customer, app.services.Carts)
+	switch input.PaymentMethod {
+	case domain.PaymentCash:
+		app.postCashOrder(w, r, customer)
+	case domain.PaymentCard:
+		app.postCardOrder(w, r, customer)
+	default:
+		panic("unimplemented payment method")
+	}
+}
+
+func (app *Application) postCashOrder(w http.ResponseWriter, r *http.Request, customer domain.Customer) {
+	order, err := app.services.Orders.CreateCashOrder(customer)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -48,6 +59,16 @@ func (app *Application) postOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *Application) postCardOrder(w http.ResponseWriter, r *http.Request, customer domain.Customer) {
+	redirectURL, err := app.services.Orders.CreateCardOrder(customer)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 func (app *Application) getOrder(w http.ResponseWriter, r *http.Request) {

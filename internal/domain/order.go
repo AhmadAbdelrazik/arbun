@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	PaymentCash   PaymentMethod = "Cash"
-	PaymentCredit               = "Credit"
+	PaymentCash PaymentMethod = "Cash"
+	PaymentCard               = "card"
 
 	StatusDispatched OrderStatus = "dispatched"
 	StatusCompleted              = "completed"
@@ -43,7 +43,7 @@ func (p PaymentMethod) Validate() *validator.Validator {
 
 	acceptedPayment := []PaymentMethod{
 		PaymentCash,
-		PaymentCredit,
+		PaymentCard,
 	}
 
 	v.Check(validator.In(p, acceptedPayment...), "payment", "invalid payment type")

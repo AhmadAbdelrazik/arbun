@@ -3,6 +3,7 @@ package services
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
+	"AhmadAbdelrazik/arbun/internal/stripe"
 	"errors"
 	"fmt"
 	"time"
@@ -14,16 +15,20 @@ var (
 
 type OrderService struct {
 	models *models.Model
+	carts  *CartService
+	stripe *stripe.StripeService
 }
 
-func newOrderService(models *models.Model) *OrderService {
+func newOrderService(models *models.Model, cartService *CartService, stripeService *stripe.StripeService) *OrderService {
 	return &OrderService{
 		models: models,
+		carts:  cartService,
+		stripe: stripeService,
 	}
 }
 
-func (s *OrderService) CreateOrder(customer domain.Customer, cartService *CartService) (domain.Order, error) {
-	cart, err := cartService.GetCart(customer.ID)
+func (s *OrderService) CreateCashOrder(customer domain.Customer) (domain.Order, error) {
+	cart, err := s.carts.GetCart(customer.ID)
 	if err != nil {
 		return domain.Order{}, fmt.Errorf("CreateOrder :%w", err)
 	}
@@ -43,9 +48,36 @@ func (s *OrderService) CreateOrder(customer domain.Customer, cartService *CartSe
 		return domain.Order{}, fmt.Errorf("CreateOrder: %w", err)
 	}
 
-	//TODO: Implement Mailer Here
-
 	return order, nil
+}
+
+func (s *OrderService) CreateCardOrder(customer domain.Customer) (string, error) {
+	cart, err := s.carts.GetCart(customer.ID)
+	if err != nil {
+		return "", fmt.Errorf("CreateOrder :%w", err)
+	}
+
+	o := domain.Order{
+		CustomerID:  customer.ID,
+		CreatedAt:   time.Now(),
+		Cart:        cart,
+		PaymentType: domain.PaymentCard,
+		Address:     customer.Address,
+		MobilePhone: customer.MobilePhone,
+		Status:      domain.StatusDispatched,
+	}
+
+	_, err = s.models.Orders.Create(o)
+	if err != nil {
+		return "", fmt.Errorf("CreateOrder: %w", err)
+	}
+
+	url, err := s.stripe.Checkout(o, customer)
+	if err != nil {
+		return "", nil
+	}
+
+	return url, nil
 }
 
 func (s *OrderService) returnItems(cart domain.Cart) {
