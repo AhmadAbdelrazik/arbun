@@ -54,6 +54,17 @@ func (m *OrderModel) Create(order domain.Order) (domain.Order, error) {
 	return order, nil
 }
 
+func (m *OrderModel) AddStripeID(orderID int64, stripeID string) error {
+	for i, order := range m.orders {
+		if order.ID == orderID {
+			m.orders[i].StripeID = stripeID
+			return nil
+		}
+	}
+
+	return ErrOrderNotFound
+}
+
 func (m *OrderModel) Update(orderID int64, status domain.OrderStatus) error {
 	for i, order := range m.orders {
 		if order.ID == orderID {
@@ -68,6 +79,16 @@ func (m *OrderModel) Update(orderID int64, status domain.OrderStatus) error {
 func (m *OrderModel) Get(orderID int64) (domain.Order, error) {
 	for _, o := range m.orders {
 		if o.ID == orderID {
+			return o, nil
+		}
+	}
+
+	return domain.Order{}, ErrOrderNotFound
+}
+
+func (m *OrderModel) GetByStripeID(stripeID string) (domain.Order, error) {
+	for _, o := range m.orders {
+		if o.StripeID == stripeID {
 			return o, nil
 		}
 	}

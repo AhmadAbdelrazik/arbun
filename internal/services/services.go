@@ -10,18 +10,20 @@ type Services struct {
 	Users    *UserService
 	Carts    *CartService
 	Orders   *OrderService
+	Stripe   *stripe.StripeService
 }
 
 func New() *Services {
-	models := models.NewModel()
-	cartService := newCartService(models)
+	model := models.NewModel()
+	cartService := newCartService(model)
 	// TODO: Provide method of passing secret key
 	// TODO: Provide the stripe api success and canceled URLs
-	stripeService := stripe.New("", "", "")
+	stripeService := stripe.New("", "", "", "", model)
 	return &Services{
-		Products: newProductService(models),
-		Users:    newUserService(models),
+		Products: newProductService(model),
+		Users:    newUserService(model),
 		Carts:    cartService,
-		Orders:   newOrderService(models, cartService, stripeService),
+		Orders:   newOrderService(model, cartService, stripeService),
+		Stripe:   stripeService,
 	}
 }

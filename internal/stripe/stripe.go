@@ -2,23 +2,60 @@ package stripe
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
+	"AhmadAbdelrazik/arbun/internal/models"
+	"encoding/json"
 	"errors"
 
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/checkout/session"
+	"github.com/stripe/stripe-go/v72/webhook"
 )
 
 type StripeService struct {
-	SuccessURL *string
-	CancelURL  *string
+	successURL    string
+	cancelURL     string
+	webhookSecret string
+	models        *models.Model
 }
 
-func New(secretKey, successURL, cancelURL string) *StripeService {
+func New(secretKey, successURL, cancelURL, webhookSecret string, model *models.Model) *StripeService {
 	stripe.Key = secretKey
 	return &StripeService{
-		SuccessURL: stripe.String(successURL),
-		CancelURL:  stripe.String(cancelURL),
+		successURL:    successURL,
+		cancelURL:     cancelURL,
+		webhookSecret: webhookSecret,
+		models:        model,
 	}
+}
+
+func (s *StripeService) ConfirmOrder(payload []byte, header string) error {
+	event, err := webhook.ConstructEvent(payload, header, s.webhookSecret)
+	if err != nil {
+		return err
+	}
+
+	var session stripe.CheckoutSession
+
+	err = json.Unmarshal(event.Data.Raw, &session)
+	if err != nil {
+		return err
+	}
+
+	if session.PaymentStatus != stripe.CheckoutSessionPaymentStatusPaid {
+		return errors.New("payment has failed")
+	}
+
+	order, err := s.models.Orders.GetByStripeID(session.ID)
+	if err != nil {
+		return err
+	}
+
+	err = s.models.Orders.Update(order.ID, domain.StatusCompleted)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *StripeService) Checkout(order domain.Order, customer domain.Customer) (string, error) {
@@ -30,8 +67,8 @@ func (s *StripeService) Checkout(order domain.Order, customer domain.Customer) (
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
 		LineItems:          toLineItems(order.Cart.Items),
 		Mode:               stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL:         s.SuccessURL,
-		CancelURL:          s.CancelURL,
+		SuccessURL:         stripe.String(s.successURL),
+		CancelURL:          stripe.String(s.cancelURL),
 		AutomaticTax:       &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
 	}
 
@@ -40,6 +77,11 @@ func (s *StripeService) Checkout(order domain.Order, customer domain.Customer) (
 	}
 
 	session, err := session.New(params)
+	if err != nil {
+		return "", err
+	}
+
+	err = s.models.Orders.AddStripeID(order.ID, session.ID)
 	if err != nil {
 		return "", err
 	}

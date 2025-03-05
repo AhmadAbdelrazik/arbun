@@ -23,6 +23,7 @@ type Order struct {
 	Address     Address       `json:"address"`
 	MobilePhone MobilePhone   `json:"mobile_phone"`
 	Status      OrderStatus   `json:"status"`
+	StripeID    string        `json:"-"`
 }
 
 func (o Order) Validate() *validator.Validator {

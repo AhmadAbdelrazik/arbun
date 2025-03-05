@@ -19,6 +19,25 @@ type Product struct {
 	Version         int               `json:"-"`
 }
 
+/*
+CREATE TABLE products(
+	id BIG SERIAL PRIMARY KEY,
+	name VARCHAR(100),
+	description text,
+	properties text,
+	price int,
+	amount int,
+	version int DEFAULT 1
+);
+
+CREATE TABLE images(
+	id BIG SERIAL PRIMARY KEY,
+	url VARCHAR()
+	product_id BIG INTEGER FOREIGN KEY REFERENCES products(id) ON DELETE CASCADE,
+	version int DEFAULT 1
+);
+*/
+
 func (p Product) Validate() *validator.Validator {
 	v := validator.New()
 
