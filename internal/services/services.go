@@ -2,7 +2,6 @@ package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/models"
-	"AhmadAbdelrazik/arbun/internal/stripe"
 )
 
 type Services struct {
@@ -10,7 +9,7 @@ type Services struct {
 	Users    *UserService
 	Carts    *CartService
 	Orders   *OrderService
-	Stripe   *stripe.StripeService
+	Stripe   *StripeService
 }
 
 func New() *Services {
@@ -18,7 +17,7 @@ func New() *Services {
 	cartService := newCartService(model)
 	// TODO: Provide method of passing secret key
 	// TODO: Provide the stripe api success and canceled URLs
-	stripeService := stripe.New("", "", "", "", model)
+	stripeService := newStripeService("", "", "", "", model)
 	return &Services{
 		Products: newProductService(model),
 		Users:    newUserService(model),

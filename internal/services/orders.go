@@ -3,7 +3,6 @@ package services
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
 	"AhmadAbdelrazik/arbun/internal/models"
-	"AhmadAbdelrazik/arbun/internal/stripe"
 	"errors"
 	"fmt"
 	"time"
@@ -16,10 +15,10 @@ var (
 type OrderService struct {
 	models *models.Model
 	carts  *CartService
-	stripe *stripe.StripeService
+	stripe *StripeService
 }
 
-func newOrderService(models *models.Model, cartService *CartService, stripeService *stripe.StripeService) *OrderService {
+func newOrderService(models *models.Model, cartService *CartService, stripeService *StripeService) *OrderService {
 	return &OrderService{
 		models: models,
 		carts:  cartService,

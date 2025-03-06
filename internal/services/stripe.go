@@ -1,4 +1,4 @@
-package stripe
+package services
 
 import (
 	"AhmadAbdelrazik/arbun/internal/domain"
@@ -18,7 +18,7 @@ type StripeService struct {
 	models        *models.Model
 }
 
-func New(secretKey, successURL, cancelURL, webhookSecret string, model *models.Model) *StripeService {
+func newStripeService(secretKey, successURL, cancelURL, webhookSecret string, model *models.Model) *StripeService {
 	stripe.Key = secretKey
 	return &StripeService{
 		successURL:    successURL,
