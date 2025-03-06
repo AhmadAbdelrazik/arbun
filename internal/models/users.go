@@ -11,6 +11,15 @@ var (
 	ErrDuplicateUser = errors.New("duplicate user")
 )
 
+type IUserModel interface {
+	InsertUser(c domain.User) (domain.User, error)
+	GetUserByEmail(email string) (domain.User, error)
+	GetUserByID(id int64) (domain.User, error)
+	GetAllUsers() ([]domain.User, error)
+	UpdateUser(c domain.User) (domain.User, error)
+	DeleteUser(id int64) error
+}
+
 type UserModel struct {
 	users     []domain.User
 	idCounter int64

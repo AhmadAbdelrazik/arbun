@@ -5,6 +5,12 @@ import (
 	"slices"
 )
 
+type ICartModel interface {
+	DeleteItem(customerID, productID int64) error
+	GetAll(customerID int64) ([]domain.CartItem, error)
+	SetItem(customerID int64, item domain.CartItem) error
+}
+
 type CartModel struct {
 	carts     map[int64][]domain.CartItem
 	idCounter int64

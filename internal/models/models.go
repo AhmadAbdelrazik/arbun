@@ -1,11 +1,11 @@
 package models
 
 type Model struct {
-	Products *ProductModel
-	Tokens   *TokenModel
-	Carts    *CartModel
-	Orders   *OrderModel
-	Users    *UserModel
+	Products IProductModel
+	Tokens   ITokenModel
+	Carts    ICartModel
+	Orders   IOrderModel
+	Users    IUserModel
 }
 
 func NewModel() *Model {

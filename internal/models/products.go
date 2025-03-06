@@ -13,6 +13,16 @@ var (
 	ErrInsufficientProductAmount = errors.New("insufficient amount")
 )
 
+type IProductModel interface {
+	InsertProduct(p domain.Product) (domain.Product, error)
+	GetProductByID(id int64) (domain.Product, error)
+	GetAllProducts() ([]domain.Product, error)
+	ChangeProductAmountBy(productID int64, amount int) error
+	ChangeProductAmountTo(productID int64, amount int) error
+	UpdateProduct(p domain.Product) (domain.Product, error)
+	DeleteProduct(id int64) error
+}
+
 type ProductModel struct {
 	products  []domain.Product
 	idCounter int64

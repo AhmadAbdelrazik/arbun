@@ -12,6 +12,12 @@ var (
 	ErrTokenNotFound = errors.New("token not found")
 )
 
+type ITokenModel interface {
+	InsertToken(token domain.Token) error
+	GetToken(plaintext string, scope string) (domain.Token, error)
+	DeleteTokensByID(id int64) error
+}
+
 type TokenModel struct {
 	tokens []domain.Token
 }

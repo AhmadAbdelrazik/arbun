@@ -10,6 +10,15 @@ var (
 	ErrOrderNotFound = errors.New("order not found")
 )
 
+type IOrderModel interface {
+	Create(order domain.Order) (domain.Order, error)
+	AddStripeID(orderID int64, stripeID string) error
+	Update(orderID int64, status domain.OrderStatus) error
+	Get(orderID int64) (domain.Order, error)
+	GetByStripeID(stripeID string) (domain.Order, error)
+	GetAll(customerID int64) ([]domain.Order, error)
+}
+
 type OrderModel struct {
 	products  *ProductModel
 	orders    []domain.Order
